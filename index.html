@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#172A3A">
+  <title>STOCKLOGIC — Operasional UMKM</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #172A3A;
+      --blue: #1677C8;
+      --cyan: #20C4D8;
+      --bg: #f1f5f9;
+      --ink: #1e293b;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --white: #fff;
+      --green: #059669;
+      --red: #dc2626;
+      --amber: #d97706;
+      --shadow: 0 10px 28px rgba(23, 42, 58, .07);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; display: flex; width: 258px; flex-direction: column; background: var(--navy); color: #fff; transition: transform .25s ease; }
+    .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #111e28;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .brand-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    }
+
+    .brand-image {
+    position: relative;
+    width: 74px;        /* Ukuran lingkaran pas di sidebar */
+    height: 74px;
+    flex: 0 0 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;   /* Memotong bagian luar lingkaran agar tetap bundar sempurna */
+    border: 2px solid rgba(32, 196, 216, 0.8);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(32, 196, 216, 0.8), inset 0 0 10px rgba(32, 196, 216, 0.4);
+    }
+
+    .brand-image img {
+    width: 240%;
+    height: auto;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    position: absolute;  /* Membuat posisi gambar bebas digeser */
+    top: 63%;            /* Menggeser titik tengah ke arah bawah (ubah angka 52% ini sesuai kebutuhan) */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Menjaga agar sumbu tengah gambar tetap pas */
+    }
+    .brand-copy small {
+    display: block;
+    font-size: 11px;
+    color: #20C4D8;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    }
+    .brand small { color: #b7c5d1; font-size: 9px; line-height: 1.35; letter-spacing: .035em; }
+    .profile { display: flex; gap: 11px; align-items: center; margin: 16px 14px 10px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 13px; background: rgba(255,255,255,.06); }
+    .avatar { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 12px; background: linear-gradient(135deg, var(--blue), var(--cyan)); font-size: 12px; font-weight: 800; }
+    .profile strong { display: block; overflow: hidden; max-width: 162px; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .profile small { color: #a9bac8; font-size: 10px; }
+    .nav { display: grid; gap: 5px; padding: 12px 12px; overflow-y: auto; }
+    .nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 0; border-radius: 10px; background: transparent; color: #bdc9d4; text-align: left; font-size: 12px; transition: color .18s, background .18s, transform .18s; }
+    .nav button:hover { transform: translateX(2px); background: rgba(255,255,255,.08); color: #fff; }
+    .nav button.active { background: var(--blue); color: #fff; box-shadow: 0 8px 18px rgba(22,119,200,.22); }
+    .nav .nav-icon { width: 20px; color: var(--cyan); text-align: center; font-size: 15px; }
+    .sidebar-bottom { margin-top: auto; padding: 14px; border-top: 1px solid rgba(255,255,255,.1); }
+    .sidebar-bottom button { width: 100%; padding: 9px; border: 1px solid rgba(248,113,113,.25); border-radius: 9px; background: rgba(220,38,38,.12); color: #fda4af; font-size: 11px; font-weight: 700; }
+    .shell { display: flex; min-width: 0; min-height: 100vh; width: calc(100% - 258px); flex: 1 1 auto; flex-direction: column; margin-left: 258px; }
+    .topbar { position: sticky; top: 0; z-index: 10; display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 30px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.94); backdrop-filter: blur(12px); }
+    .topbar h1 { margin: 0; color: var(--navy); font-size: 17px; letter-spacing: -.025em; }
+    .topbar p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .store-status { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid #dbeafe; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .store-status.closed { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 0 rgba(16,185,129,.45); animation: pulse 1.8s infinite; }
+    .closed .dot { background: #f59e0b; box-shadow: none; animation: none; }
+    @keyframes pulse { 60% { box-shadow: 0 0 0 7px rgba(16,185,129,0); } }
+    .primary, .secondary, .danger, .ghost { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 8px; padding: 9px 14px; border: 0; border-radius: 10px; font-size: 11px; font-weight: 800; transition: transform .18s, box-shadow .18s, background .18s; }
+    .primary { background: var(--blue); color: #fff; box-shadow: 0 5px 12px rgba(22,119,200,.16); }
+    .primary:hover { transform: translateY(-1px); background: #1268b1; box-shadow: 0 8px 18px rgba(22,119,200,.22); }
+    .secondary { border: 1px solid var(--line); background: #fff; color: var(--navy); }
+    .secondary:hover, .ghost:hover { background: #f8fafc; }
+    .danger { background: #fee2e2; color: #b91c1c; }
+    .danger:hover { background: #fecaca; }
+    .ghost { min-height: 32px; padding: 6px 9px; background: transparent; color: var(--muted); }
+    .mobile-toggle { display: none; border: 0; background: transparent; color: var(--navy); font-size: 20px; }
+    main { width: 100%; max-width: 1500px; margin: 0 auto; padding: 26px 30px 42px; }
+    .page { animation: rise .28s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .page-heading h2 { margin: 0; color: var(--navy); font-size: 21px; letter-spacing: -.035em; }
+    .page-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 25px 28px; overflow: hidden; border-radius: 18px; background: linear-gradient(115deg, #172A3A, #164f7b 70%, #1677C8); color: #fff; box-shadow: 0 14px 28px rgba(23,42,58,.15); }
+    .hero-copy { max-width: 650px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 7px; color: #8ceaf3; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .hero h2 { margin: 10px 0 6px; font-size: clamp(20px, 2.4vw, 29px); letter-spacing: -.04em; }
+    .hero p { margin: 0; color: #d2e0eb; font-size: 12px; }
+    .hero .primary { min-height: 44px; flex: 0 0 auto; background: var(--cyan); color: var(--navy); }
+    .hero .danger { min-height: 44px; flex: 0 0 auto; background: #ef4444; color: #fff; }
+    .grid { display: grid; gap: 16px; }
+    .stats { grid-template-columns: repeat(4, minmax(0,1fr)); margin: 20px 0; }
+    .card, .stat { border: 1px solid var(--line); border-radius: 15px; background: var(--white); box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s, border-color .2s; }
+    .stat:hover, .card:hover { transform: translateY(-2px); border-color: #cbdced; box-shadow: 0 15px 32px rgba(23,42,58,.1); }
+    .stat { padding: 17px; }
+    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .stat-label { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .stat-value { margin-top: 7px; color: var(--navy); font-size: 21px; font-weight: 850; letter-spacing: -.035em; }
+    .stat-foot { margin-top: 9px; color: var(--muted); font-size: 10px; }
+    .stat-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: #eff6ff; color: var(--blue); font-size: 16px; }
+    .stat-icon.green { background: #ecfdf5; color: var(--green); }
+    .stat-icon.cyan { background: #ecfeff; color: #0891b2; }
+    .stat-icon.amber { background: #fffbeb; color: var(--amber); }
+    .two-col { grid-template-columns: minmax(0,1.55fr) minmax(270px,.9fr); }
+    .card { padding: 20px; }
+    .card-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+    .card-title h3 { margin: 0; color: var(--navy); font-size: 13px; }
+    .card-title p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: #eff6ff; color: var(--blue); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .pill.green { background: #ecfdf5; color: #047857; }
+    .pill.amber { background: #fffbeb; color: #a16207; }
+    .pill.red { background: #fef2f2; color: #b91c1c; }
+    .list { display: grid; gap: 9px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 12px; border: 1px solid #edf1f5; border-radius: 11px; background: #fbfdff; }
+    .row-main { min-width: 0; }
+    .row-main strong { display: block; overflow: hidden; color: var(--navy); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .row-main small { color: var(--muted); font-size: 10px; }
+    .row-side { flex: 0 0 auto; text-align: right; }
+    .row-side strong { display: block; color: var(--navy); font-size: 11px; }
+    .row-side small { color: var(--muted); font-size: 10px; }
+    .empty { padding: 30px 14px; border: 1px dashed #cbd5e1; border-radius: 12px; color: var(--muted); text-align: center; font-size: 11px; }
+    .split-banner { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-bottom: 18px; }
+    .source-card { display: flex; align-items: center; gap: 14px; padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .source-icon { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: #eaf5ff; font-size: 20px; }
+    .source-card h3 { margin: 0; color: var(--navy); font-size: 12px; }
+    .source-card p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .pos-layout { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(290px,.85fr); gap: 16px; align-items: start; }
+    .pos-products { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 11px; }
+    .product { position: relative; display: flex; min-height: 160px; flex-direction: column; align-items: flex-start; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; text-align: left; transition: transform .18s, border-color .18s, box-shadow .18s; }
+    .product:hover { transform: translateY(-3px); border-color: #80bce9; box-shadow: 0 12px 22px rgba(22,119,200,.1); }
+    .product:disabled { filter: grayscale(.4); }
+    .product-cover { display: grid; width: 58px; height: 58px; place-items: center; overflow: hidden; border: 1px solid #e8eef5; border-radius: 12px; background: #f8fafc; font-size: 30px; }
+    .product-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .product strong { margin-top: 9px; color: var(--navy); font-size: 11px; }
+    .product small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .product b { margin-top: auto; padding-top: 12px; color: var(--blue); font-size: 12px; }
+    .product .stock-tag { position: absolute; top: 10px; right: 9px; padding: 4px 6px; border-radius: 7px; background: #f1f5f9; color: #475569; font-size: 9px; }
+    .cart-card { position: sticky; top: 94px; }
+    .cart-lines { display: grid; max-height: 350px; gap: 8px; overflow: auto; }
+    .cart-line { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 10px; border-radius: 10px; background: #f8fafc; }
+    .cart-line strong { display: block; color: var(--navy); font-size: 10px; }
+    .cart-line small { color: var(--muted); font-size: 10px; }
+    .qty-control { display: flex; align-items: center; gap: 7px; }
+    .qty-control button { display: grid; width: 24px; height: 24px; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--navy); font-weight: 800; }
+    .cart-total { display: flex; justify-content: space-between; gap: 8px; padding: 15px 0; border-top: 1px solid var(--line); color: var(--navy); font-size: 12px; font-weight: 800; }
+    .tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+    .tabs button { padding: 7px 11px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .tabs button.active { background: var(--navy); color: #fff; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    th { padding: 12px 14px; border-bottom: 1px solid var(--line); background: #f8fafc; color: var(--muted); font-size: 10px; font-weight: 800; }
+    td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 11px; }
+    tr:last-child td { border-bottom: 0; }
+    .table-name { color: var(--navy); font-weight: 800; }
+    .table-actions { display: flex; justify-content: flex-end; gap: 6px; }
+    .section-note { margin: 0 0 14px; color: var(--muted); font-size: 11px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+    .field { display: grid; gap: 5px; color: #475569; font-size: 10px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 39px; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 9px; outline: 0; background: #fff; color: var(--ink); font: inherit; font-size: 11px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(22,119,200,.12); }
+    .recipe-row { display: grid; grid-template-columns: minmax(130px,1.4fr) minmax(100px,.9fr) minmax(85px,.65fr) 32px; gap: 8px; align-items: end; padding: 10px; border: 1px solid #edf1f5; border-radius: 11px; background: #fbfdff; }
+    .recipe-row .remove-row { min-height: 38px; padding: 0; }
+    .menu-grid { grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); }
+    .menu-card { display: flex; flex-direction: column; gap: 12px; padding: 17px; }
+    .menu-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .menu-cover { display: grid; width: 58px; height: 58px; place-items: center; overflow: hidden; border: 1px solid #e8eef5; border-radius: 12px; background: #f8fafc; font-size: 30px; }
+    .menu-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-options { display: grid; gap: 12px; }
+    .cover-tabs { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: #f8fafc; }
+    .cover-tabs button { flex: 1; padding: 8px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .cover-tabs button.active { background: #fff; color: var(--blue); box-shadow: 0 1px 4px rgba(15,23,42,.12); }
+    .cover-panel { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdff; }
+    .cover-panel[hidden] { display: none; }
+    .cover-upload-row { display: flex; align-items: center; gap: 12px; }
+    .cover-preview { display: grid; width: 76px; height: 76px; flex: 0 0 76px; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 38px; }
+    .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-emoji-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .cover-emoji-grid button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 20px; transition: border-color .16s, background .16s, transform .16s; }
+    .cover-emoji-grid button:hover { transform: translateY(-1px); border-color: #93c5fd; }
+    .cover-emoji-grid button.active { border-color: var(--blue); background: #eff6ff; box-shadow: 0 0 0 2px rgba(22,119,200,.12); }
+    .menu-card h3 { margin: 8px 0 2px; color: var(--navy); font-size: 13px; }
+    .menu-card p { margin: 0; color: var(--muted); font-size: 10px; }
+    .recipe-list { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); color: #475569; font-size: 10px; }
+    .report-summary { grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 18px; background: rgba(15,23,42,.53); backdrop-filter: blur(5px); animation: fade .16s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .modal { width: min(100%,620px); max-height: min(90vh,850px); overflow: auto; padding: 22px; border: 1px solid rgba(255,255,255,.5); border-radius: 17px; background: #fff; box-shadow: 0 24px 80px rgba(15,23,42,.28); animation: rise .2s ease; }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .modal-head h3 { margin: 0; color: var(--navy); font-size: 16px; }
+    .modal-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .modal-close { width: 30px; height: 30px; border: 0; border-radius: 8px; background: #f1f5f9; color: #475569; font-size: 18px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .toast-area { position: fixed; right: 20px; bottom: 20px; z-index: 70; display: grid; width: min(370px,calc(100vw - 32px)); gap: 8px; }
+    .toast { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.35); border-radius: 12px; background: var(--navy); color: #fff; box-shadow: 0 12px 32px rgba(15,23,42,.22); font-size: 11px; animation: toast-in .25s ease both; }
+    .toast.success { background: #047857; }
+    .toast.error { background: #b91c1c; }
+    .toast.warning { background: #a16207; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px) translateX(6px); } to { opacity: 1; transform: translateY(0) translateX(0); } }
+    .analytics-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .chart { width: 100%; min-height: 210px; overflow: visible; }
+    .chart-frame { position: relative; }
+    .chart-empty { position: absolute; inset: 14px 12px 28px 54px; display: grid; place-items: center; padding: 12px; border-radius: 10px; background: rgba(255,255,255,.82); color: var(--muted); text-align: center; font-size: 12px; font-weight: 700; pointer-events: none; }
+    .chart-label { fill: #64748b; font: 10px system-ui,sans-serif; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 10px; }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .chart-legend i { width: 9px; height: 9px; border-radius: 3px; }
+    .assistant-answer { padding: 11px 13px; border-radius: 11px; background: #eff6ff; color: #1e3a5f; font-size: 11px; line-height: 1.65; }
+    .journal-item { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 10px; padding: 12px; border: 1px solid #edf1f5; border-radius: 11px; background: #fbfdff; }
+    .journal-item.done strong { color: #94a3b8; text-decoration: line-through; }
+    .journal-item p { margin: 4px 0; color: #475569; font-size: 11px; }
+    .alert-list { display: grid; gap: 8px; }
+    .alert-item { padding: 10px 12px; border: 1px solid #fde68a; border-radius: 10px; background: #fffbeb; color: #92400e; font-size: 11px; }
+    .filter-row { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin-bottom: 14px; }
+    .filter-row .field { min-width: 150px; }
+    .badge-cancelled { background: #fef2f2; color: #b91c1c; }
+    .split-banner .tabs { flex: 0 0 auto; }
+    @media (max-width: 760px) { .analytics-grid { grid-template-columns: 1fr; } }
+    .mobile-overlay { display: none; }
+    @media (max-width: 1100px) { .stats, .report-summary { grid-template-columns: repeat(2,minmax(0,1fr)); } .pos-layout { grid-template-columns: minmax(0,1.3fr) minmax(260px,.8fr); } }
+    @media (max-width: 760px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-overlay.show { position: fixed; inset: 0; z-index: 15; display: block; background: rgba(15,23,42,.35); }
+      .shell { width: 100%; margin-left: 0; }
+      .mobile-toggle { display: inline-grid; place-items: center; }
+      .topbar { min-height: 68px; padding: 10px 15px; }
+      .topbar h1 { font-size: 14px; }
+      .topbar p { display: none; }
+      main { padding: 19px 15px 32px; }
+      .top-actions { gap: 7px; }
+      .top-actions .primary { min-height: 34px; padding: 7px 9px; font-size: 10px; }
+      .store-status { padding: 6px 8px; font-size: 9px; }
+      .avatar.top-avatar { display: none; }
+      .hero { align-items: flex-start; flex-direction: column; padding: 21px; }
+      .two-col, .pos-layout { grid-template-columns: 1fr; }
+      .cart-card { position: static; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .page-heading .primary { width: 100%; }
+      .split-banner { grid-template-columns: 1fr; }
+      .card-title { min-width: 0; flex-wrap: wrap; }
+      .card-title > div { flex: 1 1 180px; min-width: 0; }
+      .row-main { flex: 1 1 0%; }
+      .row-side { flex: 0 1 auto; min-width: 0; }
+      .row-side strong, .row-side small { overflow-wrap: anywhere; }
+    }
+    @media (max-width: 480px) {
+      .stats, .report-summary { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+      .stat { padding: 12px; }
+      .stat-value { font-size: 16px; }
+      .stat-label { font-size: 10px; }
+      .stat-foot { font-size: 9px; }
+      .stat-icon { width: 32px; height: 32px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .recipe-row { grid-template-columns: minmax(100px,1.2fr) minmax(85px,.8fr) minmax(72px,.65fr) 30px; gap: 5px; padding: 7px; }
+      .recipe-row .field { font-size: 9px; }
+      .recipe-row .field input, .recipe-row .field select { padding: 7px 5px; font-size: 10px; }
+      .card { padding: 15px; }
+    }
+    @media print {
+      body:has(.receipt-print) > .app { display: none !important; }
+      body:has(.receipt-print) #modal-root { position: static !important; }
+      body:has(.receipt-print) .modal-backdrop { position: static !important; display: block !important; padding: 0 !important; background: #fff !important; }
+      body:has(.receipt-print) .modal { width: 100% !important; max-height: none !important; overflow: visible !important; border: 0 !important; box-shadow: none !important; }
+      body:has(.receipt-print) .modal-head, body:has(.receipt-print) .modal-actions { display: none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-image">
+          <img src="LOGO/STOCKLOGIC__.png" alt="Logo resmi STOCKLOGIC">
+        </div>
+        <div class="brand-copy">
+          <h1 style="font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.8px; margin: 0; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+              STOCK<span style="color: #20C4D8; text-shadow: 0 0 10px rgba(32,196,216,0.5);">LOGIC</span>
+          </h1>
+          <small style="display: block; font-size: 9px; color: #94a3b8; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; margin-top: 3px;">
+              OPERASIONAL UMKM
+          </small>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Navigasi utama">
+        <button class="active" data-tab="dashboard"><span class="nav-icon">◫</span>Ringkasan Usaha</button>
+        <button data-tab="intelligence"><span class="nav-icon">🧠</span>Delta & Sigma</button>
+        <button data-tab="pos"><span class="nav-icon">▣</span>Kasir 1 · Jualan Harian</button>
+        <button data-tab="retail"><span class="nav-icon">▤</span>Kasir 2 · Sembako & Eceran</button>
+        <button data-tab="shiftstock"><span class="nav-icon">◷</span>Stok Jualan Harian</button>
+        <button data-tab="warehouse"><span class="nav-icon">▦</span>Gudang Induk Sembako</button>
+        <button data-tab="menu"><span class="nav-icon">✳</span>Daftar Menu & Resep</button>
+        <button data-tab="reports"><span class="nav-icon">▥</span>Laporan Keuangan</button>
+        <button data-tab="journal"><span class="nav-icon">☷</span>Catatan Operasional</button>
+        <button data-tab="settings"><span class="nav-icon">⚙</span>Pengaturan Toko</button>
+        <button data-tab="guide"><span class="nav-icon">ⓘ</span>Panduan Operasional</button>
+      </nav>
+      <div class="sidebar-bottom"><button onclick="confirmReset()">↻ &nbsp; Reset ke Data Contoh</button></div>
+    </aside>
+    <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar(false)"></div>
+    <section class="shell">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="mobile-toggle" onclick="toggleSidebar(true)" aria-label="Buka navigasi">☰</button>
+          <div><h1 id="page-title">Ringkasan Usaha</h1><p id="store-subtitle">Warung Sembako & Harian · Operasional stok terintegrasi</p></div>
+        </div>
+        <div class="top-actions">
+          <button class="secondary" onclick="switchTab('dashboard')" aria-label="Buka notifikasi">🔔 <span id="alert-count">0</span></button>
+          <div id="shift-badge" class="store-status closed"><span class="dot"></span><span>Toko Tutup</span></div>
+          <button class="primary" onclick="openStartShiftModal()">▶ &nbsp;Mulai Shift</button>
+          <div class="avatar top-avatar">AP</div>
+        </div>
+      </header>
+      <main id="main-content"></main>
+    </section>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast-area" class="toast-area" aria-live="polite"></div>
+  <script>
+    const STORAGE_KEY = 'stocklogic_umkm_enterprise_v3';
+    const LEGACY_KEY = 'stocklogic_terpadu_v2';
+    const DEFAULT_DATA = {
+      version: 3,
+      inventory: [
+        { id: 1, name: 'Beras', unit: 'kg', stock: 100, min: 20, cost: 12000 },
+        { id: 2, name: 'Ayam Potong', unit: 'kg', stock: 30, min: 8, cost: 35000 },
+        { id: 3, name: 'Telur Ayam', unit: 'butir', stock: 180, min: 40, cost: 2000 },
+        { id: 4, name: 'Minyak Goreng', unit: 'liter', stock: 50, min: 12, cost: 16000 },
+        { id: 5, name: 'Cabai Merah', unit: 'kg', stock: 3, min: 4, cost: 40000 },
+        { id: 6, name: 'Gula Pasir', unit: 'kg', stock: 40, min: 10, cost: 15000 },
+        { id: 7, name: 'Teh', unit: 'gram', stock: 2500, min: 500, cost: 80 },
+        { id: 8, name: 'Bawang Putih', unit: 'kg', stock: 8, min: 3, cost: 36000 },
+        { id: 9, name: 'Tepung Terigu', unit: 'kg', stock: 25, min: 8, cost: 11000 },
+        { id: 10, name: 'Bawang Merah', unit: 'kg', stock: 10, min: 2, cost: 30000 },
+        { id: 11, name: 'Kecap Manis', unit: 'liter', stock: 8, min: 2, cost: 22000 },
+        { id: 12, name: 'Garam', unit: 'kg', stock: 5, min: 1, cost: 10000 },
+        { id: 13, name: 'Mi Telur', unit: 'kg', stock: 12, min: 3, cost: 18000 },
+        { id: 14, name: 'Kol', unit: 'kg', stock: 10, min: 2, cost: 12000 },
+        { id: 15, name: 'Tomat', unit: 'kg', stock: 10, min: 3, cost: 15000 },
+        { id: 16, name: 'Timun', unit: 'kg', stock: 8, min: 2, cost: 10000 },
+        { id: 17, name: 'Kopi Bubuk', unit: 'gram', stock: 1000, min: 200, cost: 120 },
+        { id: 18, name: 'Susu UHT', unit: 'liter', stock: 12, min: 3, cost: 18000 },
+        { id: 19, name: 'Jeruk', unit: 'kg', stock: 15, min: 4, cost: 22000 },
+        { id: 20, name: 'Air Mineral', unit: 'botol', stock: 96, min: 24, cost: 2500 },
+        { id: 21, name: 'Es Batu', unit: 'kg', stock: 20, min: 5, cost: 3000 },
+        { id: 22, name: 'Santan', unit: 'liter', stock: 8, min: 2, cost: 20000 },
+        { id: 23, name: 'Kaldu Bubuk', unit: 'gram', stock: 1000, min: 200, cost: 60 },
+        { id: 24, name: 'Daun Bawang', unit: 'kg', stock: 3, min: 1, cost: 18000 },
+        { id: 25, name: 'Seledri', unit: 'kg', stock: 2, min: 0.5, cost: 22000 },
+        { id: 26, name: 'Jahe', unit: 'kg', stock: 3, min: 1, cost: 28000 },
+        { id: 27, name: 'Kunyit', unit: 'kg', stock: 2, min: 0.5, cost: 18000 },
+        { id: 28, name: 'Lengkuas', unit: 'kg', stock: 2, min: 0.5, cost: 16000 },
+        { id: 29, name: 'Serai', unit: 'kg', stock: 2, min: 0.5, cost: 14000 },
+        { id: 30, name: 'Daun Salam', unit: 'kg', stock: 1, min: 0.25, cost: 30000 },
+        { id: 31, name: 'Daun Jeruk', unit: 'kg', stock: 1, min: 0.25, cost: 45000 },
+        { id: 32, name: 'Kemiri', unit: 'kg', stock: 2, min: 0.5, cost: 38000 },
+        { id: 33, name: 'Ketumbar Bubuk', unit: 'kg', stock: 1, min: 0.25, cost: 55000 },
+        { id: 34, name: 'Lada Bubuk', unit: 'kg', stock: 1, min: 0.25, cost: 95000 },
+        { id: 35, name: 'Jeruk Nipis', unit: 'kg', stock: 4, min: 1, cost: 18000 },
+        { id: 36, name: 'Tepung Tapioka', unit: 'kg', stock: 5, min: 1, cost: 14000 },
+        { id: 37, name: 'Tepung Beras', unit: 'kg', stock: 4, min: 1, cost: 16000 },
+        { id: 38, name: 'Saus Sambal', unit: 'liter', stock: 5, min: 1, cost: 26000 },
+        { id: 39, name: 'Kecap Asin', unit: 'liter', stock: 3, min: 1, cost: 24000 },
+        { id: 40, name: 'Kerupuk', unit: 'kg', stock: 5, min: 1, cost: 30000 },
+        { id: 41, name: 'Gas LPG', unit: 'kg', stock: 12, min: 3, cost: 8000 },
+        { id: 42, name: 'Cup Plastik 16 oz', unit: 'pcs', stock: 300, min: 60, cost: 350 },
+        { id: 43, name: 'Sedotan', unit: 'pcs', stock: 300, min: 60, cost: 80 },
+        { id: 44, name: 'Tisu', unit: 'pcs', stock: 500, min: 100, cost: 100 },
+        { id: 45, name: 'Bawang Goreng', unit: 'kg', stock: 2, min: 0.5, cost: 70000 }
+      ],
+      menus: [
+        { id: 101, name: 'Ayam Geprek', category: 'Makanan', price: 22000, emoji: '🍗', sold: 0, recipe: [{ inventoryId: 2, source: 'daily', qty: .15 }, { inventoryId: 1, source: 'daily', qty: .12 }, { inventoryId: 4, source: 'daily', qty: .03 }, { inventoryId: 5, source: 'daily', qty: .02 }, { inventoryId: 8, source: 'daily', qty: .005 }, { inventoryId: 9, source: 'daily', qty: .03 }, { inventoryId: 12, source: 'daily', qty: .003 }, { inventoryId: 36, source: 'daily', qty: .02 }, { inventoryId: 37, source: 'daily', qty: .01 }, { inventoryId: 38, source: 'daily', qty: .02 }, { inventoryId: 35, source: 'daily', qty: .01 }, { inventoryId: 41, source: 'daily', qty: .003 }] },
+        { id: 102, name: 'Nasi Goreng Spesial', category: 'Makanan', price: 18000, emoji: '🍳', sold: 0, recipe: [{ inventoryId: 1, source: 'daily', qty: .15 }, { inventoryId: 3, source: 'daily', qty: 1 }, { inventoryId: 4, source: 'daily', qty: .04 }, { inventoryId: 10, source: 'daily', qty: .01 }, { inventoryId: 11, source: 'daily', qty: .015 }, { inventoryId: 23, source: 'daily', qty: 3 }, { inventoryId: 24, source: 'daily', qty: .01 }, { inventoryId: 34, source: 'daily', qty: .001 }, { inventoryId: 39, source: 'daily', qty: .005 }, { inventoryId: 40, source: 'daily', qty: .02 }, { inventoryId: 45, source: 'daily', qty: .005 }, { inventoryId: 41, source: 'daily', qty: .003 }] },
+        { id: 103, name: 'Es Teh Manis', category: 'Minuman', price: 5000, emoji: '🧋', sold: 0, recipe: [{ inventoryId: 6, source: 'daily', qty: .02 }, { inventoryId: 7, source: 'daily', qty: 5 }, { inventoryId: 21, source: 'daily', qty: .1 }, { inventoryId: 42, source: 'daily', qty: 1 }, { inventoryId: 43, source: 'daily', qty: 1 }, { inventoryId: 44, source: 'daily', qty: 1 }] },
+        { id: 104, name: 'Minyak Goreng 1L', category: 'Sembako', price: 18000, emoji: '🧴', sold: 0, recipe: [{ inventoryId: 4, source: 'warehouse', qty: 1 }] },
+        { id: 105, name: 'Beras Premium 1kg', category: 'Sembako', price: 15000, emoji: '🌾', sold: 0, recipe: [{ inventoryId: 1, source: 'warehouse', qty: 1 }] },
+        { id: 106, name: 'Ayam Penyet', category: 'Makanan', price: 22000, emoji: '🍛', sold: 0, recipe: [{ inventoryId: 2, source: 'daily', qty: .15 }, { inventoryId: 1, source: 'daily', qty: .12 }, { inventoryId: 5, source: 'daily', qty: .015 }, { inventoryId: 15, source: 'daily', qty: .03 }, { inventoryId: 16, source: 'daily', qty: .03 }, { inventoryId: 4, source: 'daily', qty: .02 }, { inventoryId: 12, source: 'daily', qty: .003 }, { inventoryId: 26, source: 'daily', qty: .002 }, { inventoryId: 27, source: 'daily', qty: .002 }, { inventoryId: 28, source: 'daily', qty: .003 }, { inventoryId: 29, source: 'daily', qty: .003 }, { inventoryId: 30, source: 'daily', qty: .001 }, { inventoryId: 31, source: 'daily', qty: .001 }, { inventoryId: 32, source: 'daily', qty: .002 }, { inventoryId: 33, source: 'daily', qty: .001 }, { inventoryId: 35, source: 'daily', qty: .01 }, { inventoryId: 38, source: 'daily', qty: .02 }, { inventoryId: 41, source: 'daily', qty: .003 }, { inventoryId: 44, source: 'daily', qty: 1 }, { inventoryId: 45, source: 'daily', qty: .005 }] },
+        { id: 107, name: 'Mie Goreng', category: 'Makanan', price: 17000, emoji: '🍜', sold: 0, recipe: [{ inventoryId: 13, source: 'daily', qty: .12 }, { inventoryId: 3, source: 'daily', qty: 1 }, { inventoryId: 14, source: 'daily', qty: .03 }, { inventoryId: 8, source: 'daily', qty: .005 }, { inventoryId: 11, source: 'daily', qty: .015 }, { inventoryId: 4, source: 'daily', qty: .02 }, { inventoryId: 23, source: 'daily', qty: 2 }, { inventoryId: 24, source: 'daily', qty: .01 }, { inventoryId: 34, source: 'daily', qty: .001 }, { inventoryId: 39, source: 'daily', qty: .005 }, { inventoryId: 40, source: 'daily', qty: .02 }, { inventoryId: 41, source: 'daily', qty: .003 }, { inventoryId: 45, source: 'daily', qty: .005 }] },
+        { id: 108, name: 'Soto Ayam', category: 'Makanan', price: 20000, emoji: '🍲', sold: 0, recipe: [{ inventoryId: 2, source: 'daily', qty: .12 }, { inventoryId: 1, source: 'daily', qty: .1 }, { inventoryId: 8, source: 'daily', qty: .005 }, { inventoryId: 10, source: 'daily', qty: .005 }, { inventoryId: 22, source: 'daily', qty: .02 }, { inventoryId: 23, source: 'daily', qty: 3 }, { inventoryId: 25, source: 'daily', qty: .003 }, { inventoryId: 26, source: 'daily', qty: .003 }, { inventoryId: 27, source: 'daily', qty: .003 }, { inventoryId: 28, source: 'daily', qty: .003 }, { inventoryId: 29, source: 'daily', qty: .003 }, { inventoryId: 30, source: 'daily', qty: .001 }, { inventoryId: 31, source: 'daily', qty: .001 }, { inventoryId: 32, source: 'daily', qty: .002 }, { inventoryId: 33, source: 'daily', qty: .001 }, { inventoryId: 34, source: 'daily', qty: .001 }, { inventoryId: 35, source: 'daily', qty: .01 }, { inventoryId: 41, source: 'daily', qty: .003 }, { inventoryId: 44, source: 'daily', qty: 1 }, { inventoryId: 45, source: 'daily', qty: .01 }] },
+        { id: 109, name: 'Kopi Susu', category: 'Minuman', price: 12000, emoji: '☕', sold: 0, recipe: [{ inventoryId: 17, source: 'daily', qty: 12 }, { inventoryId: 18, source: 'daily', qty: .15 }, { inventoryId: 6, source: 'daily', qty: .015 }, { inventoryId: 21, source: 'daily', qty: .1 }, { inventoryId: 42, source: 'daily', qty: 1 }, { inventoryId: 43, source: 'daily', qty: 1 }, { inventoryId: 44, source: 'daily', qty: 1 }] },
+        { id: 110, name: 'Jus Jeruk', category: 'Minuman', price: 12000, emoji: '🍊', sold: 0, recipe: [{ inventoryId: 19, source: 'daily', qty: .18 }, { inventoryId: 6, source: 'daily', qty: .02 }, { inventoryId: 21, source: 'daily', qty: .1 }, { inventoryId: 35, source: 'daily', qty: .01 }, { inventoryId: 42, source: 'daily', qty: 1 }, { inventoryId: 43, source: 'daily', qty: 1 }, { inventoryId: 44, source: 'daily', qty: 1 }] },
+        { id: 111, name: 'Air Mineral', category: 'Sembako', price: 4000, emoji: '💧', sold: 0, recipe: [{ inventoryId: 20, source: 'warehouse', qty: 1 }] }
+      ],
+      shift: { active: false, startedAt: null, initialCash: 0, dailyStock: {}, additions: [], closedAt: null },
+      transactions: [],
+      shiftHistory: [],
+      expenses: [],
+      notes: [],
+      stockMovements: [],
+      purchases: [],
+      shop: { name: 'Warung Makan Nusantara', owner: 'Andi Pratama', address: 'Jl. Gatot Subroto No. 12, Medan', phone: '0812-3456-7890', category: 'Warung makan / restoran sederhana', hours: '08.00–22.00 WIB' },
+      notifications: true
+    };
+
+    let db;
+    let currentTab = 'dashboard';
+    let activeCashier = 'daily';
+    let cart = { daily: [], retail: [] };
+    let posSettings = { daily: { discount: 0, payment: 'Tunai', cashReceived: 0 }, retail: { discount: 0, payment: 'Tunai', cashReceived: 0 } };
+    let inventoryFilter = 'all';
+    let warehouseSearch = '';
+    let editingInventoryId = null;
+    let menuCoverType = 'emoji';
+    let menuCoverValue = '🍽️';
+    let menuUploadedCover = '';
+    let editingMenuId = null;
+    let assistantAnswer = '';
+    let dashboardChartDays = 30;
+    let reportFrom;
+    let reportTo;
+    const QUICK_EMOJIS = ['🍗', '🍜', '🍳', '🧋', '🌾', '🧴', '☕', '🍔', '🍚', '🥤', '🍰', '🥗'];
+
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const money = amount => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(amount) || 0);
+    const quantity = amount => Number(Number(amount || 0).toFixed(3)).toLocaleString('id-ID', { maximumFractionDigits: 3 });
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    const localDate = date => {
+      const d = date ? new Date(date) : new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    };
+    reportFrom = localDate(new Date(Date.now() - 29 * 86400000));
+    reportTo = localDate();
+    const inventoryItem = id => db.inventory.find(item => item.id === Number(id));
+    const menuItem = id => db.menus.find(item => item.id === Number(id));
+    const activeTransactions = () => db.transactions.filter(item => !item.cancelled);
+    const availableStock = (item, source) => source === 'daily'
+      ? Number(db.shift.dailyStock[item.id]?.available || 0)
+      : Number(item.stock || 0);
+
+    function createDemoData() {
+      const demo = clone(DEFAULT_DATA);
+      let seed = 20261111;
+      const random = () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+      const inventory = new Map(demo.inventory.map(item => [item.id, item]));
+      const menus = new Map(demo.menus.map(item => [item.id, item]));
+      const now = new Date();
+      const firstDay = new Date(`${localDate(new Date(now.getTime() - 89 * 86400000))}T00:00:00`);
+      const drafts = [];
+      let transactionNumber = 1;
+      const menuWeights = [[101, 18], [102, 18], [103, 15], [106, 16], [107, 12], [108, 8], [109, 6], [110, 5], [104, 1], [105, 1], [111, 2]];
+      const pickMenu = retail => {
+        const choices = menuWeights.filter(([id]) => (menus.get(id).category === 'Sembako') === retail);
+        const totalWeight = choices.reduce((sum, entry) => sum + entry[1], 0);
+        let value = random() * totalWeight;
+        return choices.find((entry) => (value -= entry[1]) < 0)?.[0] || choices[choices.length - 1][0];
+      };
+      for (let offset = 89; offset >= 0; offset--) {
+        const date = new Date(firstDay);
+        date.setDate(firstDay.getDate() + (89 - offset));
+        const dayKey = localDate(date);
+        const weekendBoost = [0, 6].includes(date.getDay()) ? 2 : 0;
+        const count = offset === 0 ? (now.getHours() < 8 ? 0 : 6) : 8 + Math.floor(random() * 5) + weekendBoost;
+        for (let index = 0; index < count; index++) {
+          const retail = random() < 0.13;
+          const lineCount = retail ? 1 + Number(random() > 0.7) : 1 + Number(random() > 0.52) + Number(random() > 0.86);
+          const selected = new Set();
+          while (selected.size < lineCount) selected.add(pickMenu(retail));
+          const lines = [...selected].map(id => {
+            const menu = menus.get(id);
+            return { id: menu.id, name: menu.name, price: menu.price, qty: random() > 0.82 ? 2 : 1 };
+          });
+          const latestHour = offset === 0 ? Math.max(8, Math.min(21, now.getHours())) : 20;
+          const hour = 8 + Math.floor(random() * (latestHour - 7));
+          const minute = offset === 0 && hour === now.getHours()
+            ? Math.floor(random() * (now.getMinutes() + 1))
+            : Math.floor(random() * 60);
+          const timestamp = new Date(date);
+          timestamp.setHours(hour, minute, Math.floor(random() * 60), 0);
+          drafts.push({
+            id: `DEMO-${dayKey.replace(/-/g, '')}-${String(transactionNumber++).padStart(4, '0')}`,
+            cashier: retail ? 'retail' : 'daily',
+            timestamp,
+            date: dayKey,
+            time: timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            lines,
+            paymentMethod: ['Tunai', 'QRIS (simulasi)', 'Transfer bank (simulasi)'][Math.floor(random() * 3)]
+          });
+        }
+      }
+
+      const totalUsage = new Map(demo.inventory.map(item => [item.id, 0]));
+      const dailyUsage = new Map();
+      drafts.forEach(transaction => transaction.lines.forEach(line => {
+        const menu = menus.get(line.id);
+        menu.recipe.forEach(part => {
+          const qty = Number(part.qty) * line.qty;
+          totalUsage.set(part.inventoryId, totalUsage.get(part.inventoryId) + qty);
+          const key = `${transaction.date}:${part.source}:${part.inventoryId}`;
+          dailyUsage.set(key, (dailyUsage.get(key) || 0) + qty);
+        });
+      }));
+
+      const movement = (timestamp, inventoryId, source, delta, type, note) => demo.stockMovements.push({
+        id: `DEMO-MV-${String(demo.stockMovements.length + 1).padStart(5, '0')}`,
+        timestamp: timestamp.toISOString(), inventoryId, source, delta: round3(delta), type, note
+      });
+      demo.inventory.forEach(item => {
+        const used = totalUsage.get(item.id);
+        if (!(used > 0)) return;
+        const quantityBought = round3(used * 0.6);
+        item.stock = round3(item.stock + used - quantityBought);
+        const batches = [round3(quantityBought * 0.35), round3(quantityBought * 0.35)];
+        batches.push(round3(quantityBought - batches[0] - batches[1]));
+        let purchaseTotal = 0;
+        batches.forEach((batchQuantity, index) => {
+          if (batchQuantity <= 0) return;
+          const unitCost = Math.round(item.cost * (0.98 + random() * 0.04));
+          const purchaseDate = new Date();
+          purchaseDate.setDate(purchaseDate.getDate() - [25, 14, 3][index]);
+          purchaseDate.setHours(6 + Math.floor(random() * 3), Math.floor(random() * 60), 0, 0);
+          const purchase = {
+            id: `DEMO-PO-${String(demo.purchases.length + 1).padStart(4, '0')}`,
+            inventoryId: item.id, quantity: batchQuantity, unitCost,
+            total: round2(batchQuantity * unitCost),
+            supplier: ['Pasar Induk', 'CV Segar Jaya', 'Toko Grosir Makmur'][Math.floor(random() * 3)],
+            timestamp: purchaseDate.toISOString(),
+            expiryDate: item.expiryDate || ''
+          };
+          demo.purchases.push(purchase);
+          purchaseTotal += purchase.total;
+          movement(purchaseDate, item.id, 'warehouse', batchQuantity, 'Restock', `${purchase.id} · ${purchase.supplier}`);
+        });
+        item.cost = round2((item.stock * item.cost + purchaseTotal) / (item.stock + quantityBought));
+        item.stock = round3(item.stock + quantityBought);
+      });
+
+      const warehouseStock = new Map(demo.inventory.map(item => [item.id, item.stock]));
+      let currentDay = '';
+      let dailyStock = new Map();
+      const dayMovement = new Map();
+      for (const transaction of drafts) {
+        if (transaction.date !== currentDay) {
+          if (currentDay) {
+            for (const [id, quantity] of dailyStock) {
+              if (quantity > 0) {
+                warehouseStock.set(id, round3(warehouseStock.get(id) + quantity));
+                const date = new Date(`${currentDay}T21:55:00`);
+                movement(date, id, 'daily', -quantity, 'Penutupan shift', 'Sisa stok shift demo dikembalikan');
+                movement(date, id, 'warehouse', quantity, 'Penutupan shift', 'Sisa stok shift demo dikembalikan');
+              }
+            }
+            for (const [key, quantity] of dayMovement) {
+              const [source, id] = key.split(':');
+              movement(new Date(`${currentDay}T21:50:00`), Number(id), source, -quantity, 'Penjualan', 'Rekap transaksi demo harian');
+            }
+          }
+          currentDay = transaction.date;
+          dailyStock = new Map();
+          dayMovement.clear();
+          const dailyNeeds = [...dailyUsage.entries()].filter(([key]) => key.startsWith(`${currentDay}:daily:`));
+          for (const [key, used] of dailyNeeds) {
+            const id = Number(key.split(':')[2]);
+            const allocation = round3(used * 1.1);
+            warehouseStock.set(id, round3(warehouseStock.get(id) - allocation));
+            dailyStock.set(id, allocation);
+            movement(new Date(`${currentDay}T07:00:00`), id, 'warehouse', -allocation, 'Alokasi shift', 'Alokasi stok jualan demo');
+            movement(new Date(`${currentDay}T07:00:00`), id, 'daily', allocation, 'Alokasi shift', 'Alokasi stok jualan demo');
+            dayMovement.set(`daily:${id}`, used);
+          }
+        }
+
+        let cogs = 0;
+        const consumed = new Map();
+        for (const line of transaction.lines) {
+          const menu = menus.get(line.id);
+          menu.sold += line.qty;
+          menu.recipe.forEach(part => {
+            const item = inventory.get(part.inventoryId);
+            const qty = Number(part.qty) * line.qty;
+            cogs += qty * item.cost;
+            const key = `${part.source}:${item.id}`;
+            consumed.set(key, (consumed.get(key) || 0) + qty);
+            if (part.source === 'daily') dailyStock.set(item.id, round3((dailyStock.get(item.id) || 0) - qty));
+            else warehouseStock.set(item.id, round3(warehouseStock.get(item.id) - qty));
+          });
+        }
+        const subtotal = transaction.lines.reduce((sum, line) => sum + line.price * line.qty, 0);
+        demo.transactions.unshift({
+          ...transaction,
+          timestamp: transaction.timestamp.toISOString(),
+          items: transaction.lines.map(line => `${line.name} (${line.qty})`).join(', '),
+          consumption: [...consumed.entries()].map(([key, qty]) => {
+            const [source, inventoryId] = key.split(':');
+            return { source, inventoryId: Number(inventoryId), qty: round3(qty) };
+          }),
+          discount: 0, total: subtotal, cogs: round2(cogs), profit: round2(subtotal - cogs),
+          paymentStatus: 'Dikonfirmasi (demo)', status: 'Selesai', cancelled: false, isSimulated: true
+        });
+        transaction.lines.forEach(line => {
+          const menu = menus.get(line.id);
+          menu.recipe.forEach(part => {
+            const key = `${part.source}:${part.inventoryId}`;
+            if (part.source === 'warehouse') dayMovement.set(key, (dayMovement.get(key) || 0) + Number(part.qty) * line.qty);
+          });
+        });
+      }
+      if (currentDay) {
+        for (const [id, quantity] of dailyStock) {
+          if (quantity > 0) {
+            warehouseStock.set(id, round3(warehouseStock.get(id) + quantity));
+            const date = new Date(`${currentDay}T21:55:00`);
+            movement(date, id, 'daily', -quantity, 'Penutupan shift', 'Sisa stok shift demo dikembalikan');
+            movement(date, id, 'warehouse', quantity, 'Penutupan shift', 'Sisa stok shift demo dikembalikan');
+          }
+        }
+        for (const [key, quantity] of dayMovement) {
+          const [source, id] = key.split(':');
+          movement(new Date(`${currentDay}T21:50:00`), Number(id), source, -quantity, 'Penjualan', 'Rekap transaksi demo harian');
+        }
+      }
+      demo.inventory.forEach(item => { item.stock = Math.max(0, warehouseStock.get(item.id)); });
+      demo.purchases.reverse();
+      demo.stockMovements.reverse();
+      demo.stockMovements = demo.stockMovements.slice(0, 1000);
+      const daysAgo = days => {
+        const date = new Date();
+        date.setDate(date.getDate() - days);
+        return localDate(date);
+      };
+      demo.expenses = [
+        { id: 'DEMO-EXP-001', date: daysAgo(29), category: 'Sewa', amount: 2500000, note: 'Sewa tempat bulanan' },
+        { id: 'DEMO-EXP-002', date: daysAgo(15), category: 'Gaji', amount: 3500000, note: 'Gaji dua karyawan' },
+        { id: 'DEMO-EXP-003', date: daysAgo(9), category: 'Listrik', amount: 680000, note: 'Tagihan listrik' },
+        { id: 'DEMO-EXP-004', date: daysAgo(5), category: 'Gas', amount: 240000, note: 'Isi ulang LPG' },
+        { id: 'DEMO-EXP-005', date: daysAgo(2), category: 'Air', amount: 175000, note: 'Tagihan air dan kebersihan' }
+      ];
+      demo.inventory.find(item => item.id === 2).expiryDate = daysAgo(-3);
+      demo.inventory.find(item => item.id === 15).expiryDate = daysAgo(-2);
+      demo.demoHistoryImported = true;
+      return demo;
+    }
+
+    function recordStockMovement(item, source, delta, type, note) {
+      db.stockMovements.push({
+        id: `${Date.now()}-${db.stockMovements.length}`,
+        timestamp: new Date().toISOString(),
+        inventoryId: item.id,
+        source,
+        delta: round3(delta),
+        type,
+        note
+      });
+      if (db.stockMovements.length > 1000) db.stockMovements.splice(0, db.stockMovements.length - 1000);
+    }
+
+    function saveDB() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        return true;
+      } catch (error) {
+        console.error('Gagal menyimpan data STOCKLOGIC ke localStorage:', error);
+        toast('Penyimpanan browser gagal. Periksa ruang penyimpanan atau izin browser.', 'error');
+        return false;
+      }
+    }
+
+    function expandInventoryCatalog(inventory) {
+      const expanded = clone(Array.isArray(inventory) ? inventory : []);
+      const names = new Set(expanded.map(item => String(item.name || '').trim().toLowerCase()));
+      const ids = new Set(expanded.map(item => Number(item.id)));
+      let nextId = Math.max(0, ...ids) + 1;
+      for (const template of DEFAULT_DATA.inventory) {
+        const name = String(template.name).trim().toLowerCase();
+        if (names.has(name)) continue;
+        const id = ids.has(template.id) ? nextId++ : template.id;
+        expanded.push({ ...clone(template), id, stock: 0 });
+        names.add(name);
+        ids.add(id);
+      }
+      return expanded;
+    }
+
+    function loadDB() {
+      let saved;
+      try {
+        saved = localStorage.getItem(STORAGE_KEY);
+      } catch (error) {
+        console.error('Data STOCKLOGIC tidak dapat diakses dari localStorage:', error);
+        toast('Penyimpanan browser tidak dapat diakses. Perubahan hanya berlaku selama halaman ini terbuka.', 'error');
+        return createDemoData();
+      }
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.version === 3 && !validateBackupData(parsed)) {
+            return { ...clone(DEFAULT_DATA), ...parsed, inventory: expandInventoryCatalog(parsed.inventory), shift: { ...clone(DEFAULT_DATA.shift), ...parsed.shift }, transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [], shiftHistory: Array.isArray(parsed.shiftHistory) ? parsed.shiftHistory : [], expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [], notes: Array.isArray(parsed.notes) ? parsed.notes : [], stockMovements: Array.isArray(parsed.stockMovements) ? parsed.stockMovements : [], purchases: Array.isArray(parsed.purchases) ? parsed.purchases : [], shop: { ...clone(DEFAULT_DATA.shop), ...(parsed.shop || {}) } };
+          }
+          throw new Error(validateBackupData(parsed) || 'Format data STOCKLOGIC tersimpan tidak dikenal.');
+        } catch (error) {
+          console.error('Data STOCKLOGIC tersimpan tidak dapat dibaca:', error);
+          try {
+            localStorage.setItem(`${STORAGE_KEY}_recovery`, saved);
+          } catch (backupError) {
+            console.error('Salinan pemulihan data STOCKLOGIC gagal dibuat:', backupError);
+          }
+          toast('Data tersimpan rusak atau tidak dikenal. Salinan pemulihan disimpan jika ruang browser tersedia; data contoh dimuat.', 'error');
+          return createDemoData();
+        }
+      }
+      let old;
+      try {
+        old = localStorage.getItem(LEGACY_KEY);
+      } catch (error) {
+        console.error('Data STOCKLOGIC lama tidak dapat diakses:', error);
+        toast('Data lama tidak dapat dibaca dari penyimpanan browser.', 'error');
+        return createDemoData();
+      }
+      if (old) {
+        try {
+          const legacy = JSON.parse(old);
+          const migrated = clone(DEFAULT_DATA);
+          if (Array.isArray(legacy.ingredients)) {
+            migrated.inventory = legacy.ingredients.map(item => ({ id: Number(item.id), name: item.name, unit: item.unit || 'pcs', stock: Number(item.stock) || 0, min: Number(item.min) || 0, cost: Number(item.price) || 0 }));
+          }
+          if (Array.isArray(legacy.menus)) {
+            migrated.menus = legacy.menus.map(item => ({
+              id: Number(item.id), name: item.name, category: item.category || 'Makanan', price: Number(item.price) || 0, emoji: item.emoji || '🍽️', sold: Number(item.sold) || 0,
+              recipe: (item.recipe || []).map(part => ({ inventoryId: Number(part.ingId), source: item.category === 'Sembako' ? 'warehouse' : 'daily', qty: Number(part.qty) || 0 }))
+            })).filter(item => item.recipe.length);
+          }
+          migrated.transactions = (legacy.transactions || []).map((item, index) => ({ id: item.id || `MIG-${index + 1}`, cashier: 'daily', timestamp: new Date().toISOString(), date: localDate(), items: item.items || 'Transaksi sebelumnya', total: Number(item.total) || 0, cogs: Math.max(0, (Number(item.total) || 0) - (Number(item.profit) || 0)), profit: Number(item.profit) || 0 }));
+          return migrated;
+        } catch (error) {
+          console.error('Migrasi data STOCKLOGIC sebelumnya gagal:', error);
+          toast('Migrasi data lama gagal. Data contoh dimuat; file lama tetap tersedia.', 'error');
+          return createDemoData();
+        }
+      }
+      return createDemoData();
+    }
+
+    function appendDemoHistory(data) {
+      if (data.demoHistoryImported) return 0;
+      const demo = createDemoData();
+      data.inventory = expandInventoryCatalog(data.inventory);
+      const inventoryByName = new Map(data.inventory.map(item => [item.name.trim().toLocaleLowerCase('id-ID'), item]));
+      const inventoryIdMap = new Map(demo.inventory.map(item => [
+        item.id,
+        inventoryByName.get(item.name.trim().toLocaleLowerCase('id-ID'))?.id
+      ]));
+      const menuIds = new Set(data.menus.map(menu => Number(menu.id)));
+      const menuByName = new Map(data.menus.map(menu => [menu.name.trim().toLocaleLowerCase('id-ID'), menu]));
+      const menuIdMap = new Map();
+      let nextMenuId = Math.max(0, ...menuIds) + 1;
+      for (const template of demo.menus) {
+        const key = template.name.trim().toLocaleLowerCase('id-ID');
+        const existing = menuByName.get(key);
+        if (existing) {
+          menuIdMap.set(template.id, existing.id);
+          continue;
+        }
+        let id = menuIds.has(template.id) ? nextMenuId++ : template.id;
+        while (menuIds.has(id)) id = nextMenuId++;
+        const menu = clone(template);
+        menu.id = id;
+        menu.sold = 0;
+        menu.recipe = menu.recipe.map(part => ({ ...part, inventoryId: inventoryIdMap.get(part.inventoryId) ?? part.inventoryId }));
+        data.menus.push(menu);
+        menuIds.add(id);
+        menuByName.set(key, menu);
+        menuIdMap.set(template.id, id);
+      }
+
+      const simulatedDates = new Set(data.transactions
+        .filter(transaction => transaction.isSimulated || String(transaction.id).startsWith('DEMO-'))
+        .map(transactionDate));
+      const transactionIds = new Set(data.transactions.map(transaction => String(transaction.id)));
+      const additions = [];
+      for (const source of demo.transactions) {
+        if (simulatedDates.has(transactionDate(source))) continue;
+        const transaction = clone(source);
+        transaction.lines = transaction.lines.map(line => ({ ...line, id: menuIdMap.get(line.id) ?? line.id }));
+        transaction.consumption = [];
+        transaction.shiftId = null;
+        transaction.isSimulated = true;
+        if (transactionIds.has(transaction.id)) {
+          let suffix = 1;
+          while (transactionIds.has(`${transaction.id}-SIM-${suffix}`)) suffix++;
+          transaction.id = `${transaction.id}-SIM-${suffix}`;
+        }
+        transactionIds.add(transaction.id);
+        additions.push(transaction);
+      }
+      data.transactions.forEach(transaction => {
+        if (String(transaction.id).startsWith('DEMO-')) {
+          transaction.isSimulated = true;
+          transaction.consumption = [];
+        }
+      });
+      data.transactions.push(...additions);
+      data.transactions.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
+      data.demoHistoryImported = true;
+      data.demoHistoryImportedCount = additions.length;
+      return additions.length;
+    }
+
+    function toast(message, type = 'info') {
+      const host = document.getElementById('toast-area');
+      const item = document.createElement('div');
+      item.className = `toast ${type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : ''}`;
+      const icon = type === 'success' ? '✓' : type === 'error' ? '!' : type === 'warning' ? '⚠' : '•';
+      item.innerHTML = `<strong>${icon}</strong><span>${escapeHtml(message)}</span>`;
+      host.appendChild(item);
+      setTimeout(() => item.remove(), 3600);
+    }
+
+    const TITLES = {
+      dashboard: 'Ringkasan Usaha',       intelligence: 'Delta & Sigma · Business Intelligence', pos: 'Kasir 1 · Jualan Harian', retail: 'Kasir 2 · Sembako & Eceran',
+      shiftstock: 'Stok Jualan Harian', warehouse: 'Gudang Induk Sembako', menu: 'Daftar Menu & Resep',
+      reports: 'Laporan Keuangan', journal: 'Catatan Operasional', settings: 'Pengaturan Toko', guide: 'Panduan Operasional'
+    };
+
+    function switchTab(tab) {
+      if (!TITLES[tab]) return;
+      currentTab = tab;
+      document.querySelectorAll('.nav button').forEach(button => button.classList.toggle('active', button.dataset.tab === tab));
+      document.getElementById('page-title').textContent = TITLES[tab];
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('mobile-overlay').classList.remove('show');
+      render();
+    }
+
+    function toggleSidebar(open) {
+      document.getElementById('sidebar').classList.toggle('open', open);
+      document.getElementById('mobile-overlay').classList.toggle('show', open);
+    }
+
+    function updateShiftBadge() {
+      const badge = document.getElementById('shift-badge');
+      badge.classList.toggle('closed', !db.shift.active);
+      badge.innerHTML = `<span class="dot"></span><span>${db.shift.active ? 'Shift Aktif · Toko Buka' : 'Toko Tutup'}</span>`;
+    }
+
+    function render() {
+      updateShiftBadge();
+      const shop = db.shop || DEFAULT_DATA.shop;
+      const subtitle = document.getElementById('store-subtitle');
+      const alertCount = document.getElementById('alert-count');
+      if (subtitle) subtitle.textContent = `${shop.name} · Operasional stok terintegrasi`;
+      if (alertCount) alertCount.textContent = db.notifications ? String(buildAlerts().length) : '0';
+      const target = document.getElementById('main-content');
+      const pages = { dashboard: renderDashboard, intelligence: renderIntelligence, pos: () => renderPOS('daily'), retail: () => renderPOS('retail'), shiftstock: renderShiftStock, warehouse: renderWarehouse, menu: renderMenu, reports: renderReports, journal: renderJournal, settings: renderSettings, guide: renderGuide };
+      target.innerHTML = `<div class="page">${pages[currentTab]()}</div>`;
+    }
+
+    function pageHeading(title, subtitle, action = '') {
+      return `<div class="page-heading"><div><h2>${title}</h2><p>${subtitle}</p></div>${action}</div>`;
+    }
+
+    function statCard(label, value, foot, icon, tone = '') {
+      return `<article class="stat"><div class="stat-top"><div><div class="stat-label">${label}</div><div class="stat-value">${value}</div></div><div class="stat-icon ${tone}">${icon}</div></div><div class="stat-foot">${foot}</div></article>`;
+    }
+
+    function todayTransactions() {
+      return activeTransactions().filter(transaction => transaction.date === localDate());
+    }
+
+    function renderDashboard() {
+      const today = todayTransactions();
+      const revenue = today.reduce((sum, item) => sum + item.total, 0);
+      const profit = today.reduce((sum, item) => sum + item.profit, 0);
+      const cogs = today.reduce((sum, item) => sum + Number(item.cogs || 0), 0);
+      const operatingCosts = db.expenses.filter(item => item.date === localDate()).reduce((sum, item) => sum + item.amount, 0);
+      const low = db.inventory.filter(item => item.stock <= item.min).length;
+      const topToday = new Map();
+      today.forEach(transaction => (transaction.lines || []).forEach(line => topToday.set(line.id, (topToday.get(line.id) || 0) + lineQuantity(line))));
+      const topMenu = [...topToday.entries()].sort((a, b) => b[1] - a[1])[0];
+      const topMenuName = topMenu ? `${menuItem(topMenu[0])?.name || 'Menu'} · ${quantity(topMenu[1])} porsi` : 'Belum ada penjualan';
+      const inventoryValue = db.inventory.reduce((sum, item) => sum + Number(item.stock || 0) * Number(item.cost || 0), 0);
+      const dailyCount = today.filter(item => !item.isSimulated && item.cashier === 'daily').length;
+      const retailCount = today.filter(item => !item.isSimulated && item.cashier === 'retail').length;
+      const simulatedCount = db.transactions.filter(item => item.isSimulated).length;
+      const last = db.transactions.slice(0, 5);
+      const dailyItems = Object.values(db.shift.dailyStock).filter(item => Number(item.available || 0) > 0).length;
+      const alerts = db.notifications ? buildAlerts() : [];
+      const performanceChart = buildDashboardPerformance(dashboardChartDays);
+      const stockChart = buildStockMovementChart(14);
+      return `
+        <section class="hero">
+          <div class="hero-copy"><span class="eyebrow">◈ SISTEM OPERASIONAL TERPADU</span><h2>${db.shift.active ? 'Shift berjalan. Pantau stok dan penjualan hari ini.' : `Selamat datang kembali, ${escapeHtml(db.shop.owner)}.`}</h2><p>${db.shift.active ? `Toko mulai beroperasi pukul ${escapeHtml(db.shift.startedAt || '—')}. Stok jualan harian aktif dan transaksi tercatat otomatis.` : 'Mulai hari dengan alokasi stok yang jelas. Penjualan harian dan sembako memakai kasir serta sumber stok yang terpisah.'}</p></div>
+          ${db.shift.active ? '<button class="danger" onclick="stopShift()">■ &nbsp;Akhiri Shift</button>' : '<button class="primary" onclick="openStartShiftModal()">▶ &nbsp;START Shift Hari Ini</button>'}
+        </section>
+        <section class="grid stats">
+          ${statCard('Omzet hari ini', money(revenue), `↑ ${today.length} transaksi${today.some(item => item.isSimulated) ? ' · termasuk simulasi' : ' tercatat'}`, '↗', 'cyan')}
+          ${statCard('Estimasi laba bersih', money(profit - operatingCosts), `Laba kotor ${money(profit)} · biaya ${money(operatingCosts)}`, '◈', 'green')}
+          ${statCard('Bahan jualan tersedia', db.shift.active ? `${dailyItems} <small style="font-size:11px">bahan</small>` : 'Shift belum aktif', db.shift.active ? 'Jenis bahan dengan saldo aktif' : 'Mulai shift untuk alokasi stok', '◷', 'amber')}
+          ${statCard('Perlu restock gudang', `${low} <small style="font-size:11px">bahan</small>`, `${db.inventory.length} jenis bahan dikelola`, '⚑', low ? '' : 'green')}
+          ${statCard('Rata-rata transaksi', money(today.length ? revenue / today.length : 0), `${today.length} transaksi hari ini`, '▤', 'cyan')}
+          ${statCard('HPP hari ini', money(cogs), 'Berdasarkan bahan resep terpakai', '◈', 'amber')}
+          ${statCard('Nilai persediaan', money(inventoryValue), 'Stok Gudang Induk × biaya rata-rata', '▦', 'green')}
+          ${statCard('Menu terlaris hari ini', escapeHtml(topMenuName), 'Berdasarkan porsi transaksi aktif', '✳', 'cyan')}
+        </section>
+        <section class="split-banner">
+          <article class="source-card"><div class="source-icon">🍳</div><div><h3>Kasir 1 · Jualan Harian</h3><p>${dailyCount} transaksi aktual hari ini · memotong stok aktif shift</p></div><button class="secondary" style="margin-left:auto" onclick="switchTab('pos')">Buka kasir</button></article>
+          <article class="source-card"><div class="source-icon">🛒</div><div><h3>Kasir 2 · Sembako & Eceran</h3><p>${retailCount} transaksi aktual hari ini · memotong Gudang Induk</p></div><button class="secondary" style="margin-left:auto" onclick="switchTab('retail')">Buka kasir</button></article>
+        </section>
+        ${alerts.length ? `<article class="card" style="margin-bottom:16px"><div class="card-title"><div><h3>Notifikasi & tindakan</h3><p>${alerts.length} hal perlu diperiksa.</p></div><button class="ghost" onclick="switchTab('intelligence')">Buka analisis →</button></div><div class="alert-list">${alerts.map(alert => `<div class="alert-item">${escapeHtml(alert)}</div>`).join('')}</div></article>` : ''}
+        <section class="analytics-grid" style="margin-bottom:16px">
+          <article class="card"><div class="card-title"><div><h3>Performa usaha</h3><p>Omzet dan estimasi laba bersih harian · hingga ${simulatedCount} transaksi simulasi berlabel.</p></div><div class="tb" style="margin:0">${[7, 30, 90].map(days => `<button class="${dashboardChartDays === days ? 'primary' : 'secondary'}" onclick="dashboardChartDays=${days};render()">${days === 7 ? '1 minggu' : days === 30 ? '1 bulan' : '3 bulan'}</button>`).join('')}</div></div>
+            ${renderLineChart(performanceChart.labels, [{ name: 'Omzet', color: '#1677C8', values: performanceChart.revenue }, { name: 'Laba bersih', color: '#059669', values: performanceChart.net }], value => money(value), performanceChart.hasData ? '' : 'Belum ada transaksi pada periode ini. Grafik akan terisi setelah penjualan tercatat.')}
+          </article>
+          <article class="card"><div class="card-title"><div><h3>Pergerakan nilai stok</h3><p>Nilai stok masuk dan keluar dari catatan pergerakan.</p></div><span class="pill">${stockChart.labels.length} hari</span></div>
+            ${renderLineChart(stockChart.labels, [{ name: 'Stok masuk', color: '#20C4D8', values: stockChart.incoming }, { name: 'Stok keluar', color: '#FF9F43', values: stockChart.outgoing }], value => money(value), stockChart.hasData ? '' : 'Belum ada catatan pergerakan stok. Grafik akan terisi setelah restock, alokasi, atau penjualan.')}
+          </article>
+        </section>
+        <section class="grid two-col">
+          <article class="card"><div class="card-title"><div><h3>Aktivitas transaksi terbaru</h3><p>Data aktual dan contoh simulasi diberi label terpisah.</p></div><button class="ghost" onclick="switchTab('reports')">Lihat semua →</button></div>
+            ${last.length ? `<div class="list">${last.map(transactionRow).join('')}</div>` : '<div class="empty">Belum ada transaksi. Selesaikan penjualan pertama untuk mulai melihat ringkasan.</div>'}
+          </article>
+          <article class="card"><div class="card-title"><div><h3>Ringkasan persediaan</h3><p>Pantau saldo dua sumber stok.</p></div><span class="pill green">Live</span></div>
+            <div class="list">
+              <div class="row"><div class="row-main"><strong>Gudang Induk</strong><small>Persediaan sembako & bahan baku</small></div><div class="row-side"><strong>${db.inventory.length} item</strong><small>${low ? `${low} perlu restock` : 'Semua aman'}</small></div></div>
+              <div class="row"><div class="row-main"><strong>Stok Jualan Harian</strong><small>${db.shift.active ? 'Teralokasi untuk shift aktif' : 'Belum ada alokasi aktif'}</small></div><div class="row-side"><strong>${db.shift.active ? Object.keys(db.shift.dailyStock).length : 0} item</strong><small>${db.shift.active ? 'Penjualan realtime' : 'Menunggu shift'}</small></div></div>
+            </div><button class="secondary" style="width:100%;margin-top:13px" onclick="switchTab('warehouse')">Kelola Gudang Induk</button>
+          </article>
+        </section>`;
+    }
+
+    function transactionRow(transaction) {
+      const register = transaction.cashier === 'retail' ? 'Kasir 2 · Sembako' : 'Kasir 1 · Harian';
+      return `<div class="row"><div class="row-main"><strong>${escapeHtml(transaction.items)} ${transaction.isSimulated ? '<span class="pill amber">SIMULASI</span>' : ''}</strong><small>${escapeHtml(transaction.id)} · ${escapeHtml(transaction.date || transactionDate(transaction))} ${escapeHtml(transaction.time || '—')} · ${register} · ${escapeHtml(transaction.paymentMethod || 'Tunai')}${transaction.cancelled ? ' · DIBATALKAN' : ''}</small></div><div class="row-side"><strong>${money(transaction.total)}</strong><small>${transaction.cancelled ? 'Transaksi dibatalkan' : `Laba ${money(transaction.profit)}`}</small></div></div>`;
+    }
+
+    function renderPOS(cashier) {
+      const isRetail = cashier === 'retail';
+      const items = db.menus.filter(item => isRetail ? item.category === 'Sembako' : item.category !== 'Sembako');
+      const currentCart = cart[cashier];
+      const settings = posSettings[cashier];
+      const subtotal = currentCart.reduce((sum, line) => sum + line.price * line.qty, 0);
+      const discount = Math.round(subtotal * settings.discount / 100);
+      const total = subtotal - discount;
+      const enabled = isRetail || db.shift.active;
+      const categories = [...new Set(items.map(item => item.category))];
+      return `
+        ${pageHeading(isRetail ? 'Kasir 2 · Sembako & Eceran' : 'Kasir 1 · Jualan Harian', isRetail ? 'Barang sembako dan eceran mengurangi stok langsung dari Gudang Induk.' : 'Menu makanan & minuman mengurangi alokasi Stok Jualan Harian shift aktif.', isRetail ? '<span class="pill">Sumber stok: Gudang Induk</span>' : `<span class="pill ${db.shift.active ? 'green' : 'amber'}">${db.shift.active ? 'Shift aktif' : 'Shift belum dimulai'}</span>`)}
+        <div class="split-banner">
+          <article class="source-card"><div class="source-icon">${isRetail ? '🏬' : '🍽️'}</div><div><h3>${isRetail ? 'Sumber stok: Gudang Induk Sembako' : 'Sumber stok: Stok Jualan Harian'}</h3><p>${isRetail ? 'Penjualan langsung memotong persediaan induk.' : db.shift.active ? 'Stok menu aktif tersedia dan akan dipotong saat checkout.' : 'Mulai shift dan alokasikan bahan sebelum menerima pesanan.'}</p></div></article>
+          <div class="tabs"><button class="${isRetail ? '' : 'active'}" onclick="switchTab('pos')">Kasir 1 · Harian</button><button class="${isRetail ? 'active' : ''}" onclick="switchTab('retail')">Kasir 2 · Sembako</button></div>
+        </div>
+        ${!enabled ? `<div class="card" style="margin-bottom:16px;border-color:#fde68a;background:#fffbeb"><strong style="color:#92400e">Kasir Harian belum dapat digunakan.</strong><p style="margin:5px 0 12px;color:#92400e;font-size:11px">Mulai shift dan alokasikan stok jualan harian terlebih dahulu.</p><button class="primary" onclick="openStartShiftModal()">▶ &nbsp;Mulai Shift</button></div>` : ''}
+        <div class="pos-layout">
+          <article class="card"><div class="card-title"><div><h3>${isRetail ? 'Katalog sembako & eceran' : 'Menu jualan siap saji'}</h3><p>${items.length} produk terdaftar · wajib memiliki resep stok aktif</p></div><button class="ghost" onclick="switchTab('menu')">Atur menu & resep →</button></div>
+            ${items.length ? `<div class="filter-row"><label class="field">Cari produk<input id="pos-search-${cashier}" type="search" placeholder="Nama produk…" oninput="filterPOS('${cashier}')"></label><label class="field">Kategori<select id="pos-category-${cashier}" onchange="filterPOS('${cashier}')"><option value="">Semua kategori</option>${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('')}</select></label></div><div class="pos-products">${items.map(item => {
+              const status = stockForMenu(item);
+              return `<button class="product" data-pos-product data-name="${escapeHtml(item.name.toLowerCase())}" data-category="${escapeHtml(item.category)}" ${!enabled || !status.available ? 'disabled' : ''} onclick="addToCart('${cashier}',${item.id})"><span class="stock-tag">${status.available ? `Tersedia ${quantity(status.minimum)}+` : 'Stok habis'}</span>${renderCover(item.cover, item.emoji, 'product-cover')}<strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.category)} · ${item.recipe.length} bahan resep</small><b>${money(item.price)}</b></button>`;
+            }).join('')}</div>` : '<div class="empty">Belum ada produk pada kasir ini. Tambahkan menu dengan resep di Daftar Menu & Resep.</div>'}
+          </article>
+          <article class="card cart-card"><div class="card-title"><div><h3>Keranjang transaksi</h3><p>${isRetail ? 'Kasir 2 · saldo Gudang Induk' : 'Kasir 1 · saldo stok shift'}</p></div><button class="ghost" onclick="clearCart('${cashier}')">Kosongkan</button></div>
+            ${currentCart.length ? `<div class="cart-lines">${currentCart.map((line, index) => `<div class="cart-line"><div><strong>${escapeHtml(line.name)}</strong><small>${money(line.price)} · subtotal ${money(line.price * line.qty)}</small></div><div class="qty-control"><button onclick="changeCartQty('${cashier}',${index},-1)" aria-label="Kurangi">−</button><b>${line.qty}</b><button onclick="changeCartQty('${cashier}',${index},1)" aria-label="Tambah">+</button></div></div>`).join('')}</div>` : '<div class="empty">Keranjang masih kosong.<br>Pilih produk untuk memulai transaksi.</div>'}
+            <div class="form-grid" style="margin-top:12px">
+              <label class="field">Diskon (%)<input type="number" min="0" max="100" step="1" value="${settings.discount}" onchange="updatePOSSetting('${cashier}','discount',this.value)"></label>
+              <label class="field">Metode pembayaran<select onchange="updatePOSSetting('${cashier}','payment',this.value)"><option value="Tunai" ${settings.payment === 'Tunai' ? 'selected' : ''}>Tunai</option><option value="QRIS (simulasi)" ${settings.payment === 'QRIS (simulasi)' ? 'selected' : ''}>QRIS · simulasi</option><option value="Transfer bank (simulasi)" ${settings.payment === 'Transfer bank (simulasi)' ? 'selected' : ''}>Transfer bank · simulasi</option></select></label>
+            </div>
+            <div class="row"><span>Subtotal</span><strong>${money(subtotal)}</strong></div>
+            <div class="row"><span>Diskon</span><strong>− ${money(discount)}</strong></div>
+            <div class="cart-total"><span>Total pembayaran</span><span>${money(total)}</span></div>
+            <p class="section-note">${settings.payment === 'Tunai' ? 'Pembayaran tunai akan dicatat setelah kasir mengonfirmasi penerimaan uang.' : `${settings.payment} dicatat setelah konfirmasi manual kasir; tidak terhubung ke payment gateway.`}</p>
+            <button class="primary" style="width:100%" ${!currentCart.length || !enabled ? 'disabled' : ''} onclick="checkout('${cashier}')">✓ &nbsp;Selesaikan transaksi</button>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:10px">Stok akan divalidasi dan dipotong hanya setelah transaksi berhasil.</p>
+          </article>
+        </div>`;
+    }
+
+    function filterPOS(cashier) {
+      const search = document.getElementById(`pos-search-${cashier}`)?.value.trim().toLocaleLowerCase('id-ID') || '';
+      const category = document.getElementById(`pos-category-${cashier}`)?.value || '';
+      document.querySelectorAll('[data-pos-product]').forEach(product => {
+        product.hidden = !product.dataset.name.includes(search) || Boolean(category && product.dataset.category !== category);
+      });
+    }
+
+    function updatePOSSetting(cashier, key, value) {
+      if (!posSettings[cashier]) return;
+      if (key === 'discount') {
+        const discount = Number(value);
+        if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
+          toast('Diskon harus berada di antara 0% dan 100%.', 'error');
+          return render();
+        }
+        posSettings[cashier].discount = discount;
+      } else if (key === 'payment' && ['Tunai', 'QRIS (simulasi)', 'Transfer bank (simulasi)'].includes(value)) {
+        posSettings[cashier].payment = value;
+      }
+      render();
+    }
+
+    function stockForMenu(menu) {
+      let minimum = Infinity;
+      for (const recipe of menu.recipe || []) {
+        const item = inventoryItem(recipe.inventoryId);
+        if (!item || Number(recipe.qty) <= 0) return { available: false, minimum: 0 };
+        minimum = Math.min(minimum, Math.floor(availableStock(item, recipe.source) / Number(recipe.qty)));
+      }
+      return { available: minimum > 0, minimum: Number.isFinite(minimum) ? minimum : 0 };
+    }
+
+    function addToCart(cashier, id) {
+      const item = menuItem(id);
+      if (!item || !item.recipe?.length) return toast('Produk tidak memiliki resep bahan yang valid.', 'error');
+      if (cashier === 'daily' && !db.shift.active) return toast('Mulai shift sebelum menggunakan Kasir Jualan Harian.', 'warning');
+      const line = cart[cashier].find(entry => entry.id === item.id);
+      if (line) line.qty += 1;
+      else cart[cashier].push({ id: item.id, name: item.name, price: Number(item.price), qty: 1 });
+      render();
+    }
+
+    function changeCartQty(cashier, index, delta) {
+      const line = cart[cashier][index];
+      if (!line) return;
+      line.qty += delta;
+      if (line.qty <= 0) cart[cashier].splice(index, 1);
+      render();
+    }
+
+    function clearCart(cashier) {
+      cart[cashier] = [];
+      render();
+    }
+
+    function cartRequirements(cashier) {
+      const lines = cart[cashier];
+      if (!lines.length) return { error: 'Keranjang masih kosong.' };
+      if (cashier === 'daily' && !db.shift.active) return { error: 'Shift harus aktif untuk menjual menu harian.' };
+      const requirements = new Map();
+      for (const line of lines) {
+        const menu = menuItem(line.id);
+        if (!Number.isInteger(line.qty) || line.qty <= 0 || !Number.isFinite(line.price) || line.price <= 0) return { error: `Jumlah atau harga ${line.name} tidak valid.` };
+        if (!menu || !menu.recipe?.length) return { error: `Resep ${line.name} tidak tersedia. Transaksi dibatalkan.` };
+        for (const part of menu.recipe) {
+          const item = inventoryItem(part.inventoryId);
+          const source = part.source;
+          if (!item || !['daily', 'warehouse'].includes(source) || !Number.isFinite(Number(part.qty)) || !(Number(part.qty) > 0)) return { error: `Resep ${line.name} memiliki bahan yang tidak valid.` };
+          if ((cashier === 'daily' && menu.category === 'Sembako') || (cashier === 'retail' && menu.category !== 'Sembako')) return { error: 'Produk berada di kasir yang salah. Transaksi dibatalkan.' };
+          const key = `${source}:${item.id}`;
+          const current = requirements.get(key) || { source, item, qty: 0 };
+          current.qty += Number(part.qty) * line.qty;
+          requirements.set(key, current);
+        }
+      }
+      for (const need of requirements.values()) {
+        const available = availableStock(need.item, need.source);
+        if (available + 1e-9 < need.qty) {
+          const sourceName = need.source === 'daily' ? 'Stok Jualan Harian' : 'Gudang Induk';
+          return { error: `${sourceName} · ${need.item.name} kurang. Butuh ${quantity(need.qty)} ${need.item.unit}, tersedia ${quantity(available)}.` };
+        }
+      }
+      return { lines, requirements };
+    }
+
+    function checkout(cashier) {
+      const validated = cartRequirements(cashier);
+      if (validated.error) return toast(validated.error, 'error');
+      const subtotal = validated.lines.reduce((sum, line) => sum + line.price * line.qty, 0);
+      const discountAmount = Math.round(subtotal * posSettings[cashier].discount / 100);
+      const total = subtotal - discountAmount;
+      const payment = posSettings[cashier].payment;
+      const cashReceived = Math.max(total, Number(posSettings[cashier].cashReceived) || 0);
+      posSettings[cashier].cashReceived = cashReceived;
+      const cashField = payment === 'Tunai'
+        ? `<label class="field">Uang diterima (Rp)<input id="checkout-cash-received" type="number" min="${total}" step="1" value="${cashReceived}" required oninput="updateCashChange(${total})"></label><div class="row"><span>Kembalian</span><strong id="checkout-change">${money(cashReceived - total)}</strong></div>`
+        : `<div class="alert-item">${payment} adalah simulasi. Pastikan kasir menerima konfirmasi pembayaran secara manual; tidak ada verifikasi bank atau payment gateway.</div>`;
+      showModal('Konfirmasi pembayaran', 'Periksa total dan metode pembayaran sebelum menyimpan transaksi.', `
+        <div class="list"><div class="row"><span>Subtotal</span><strong>${money(subtotal)}</strong></div><div class="row"><span>Diskon (${posSettings[cashier].discount}%)</span><strong>− ${money(discountAmount)}</strong></div><div class="row"><span>Total dibayar</span><strong>${money(total)}</strong></div><div class="row"><span>Metode</span><strong>${escapeHtml(payment)}</strong></div></div>
+        <div style="margin-top:14px">${cashField}</div>
+        <div class="modal-actions"><button class="secondary" onclick="closeModal()">Kembali</button><button class="primary" onclick="completeCheckout('${cashier}')">Konfirmasi & simpan</button></div>`);
+    }
+
+    function updateCashChange(total) {
+      const received = Number(document.getElementById('checkout-cash-received')?.value) || 0;
+      const change = document.getElementById('checkout-change');
+      if (change) change.textContent = money(Math.max(0, received - total));
+    }
+
+    let checkoutInProgress = false;
+    function completeCheckout(cashier) {
+      if (checkoutInProgress) return;
+      const validated = cartRequirements(cashier);
+      if (validated.error) return toast(validated.error, 'error');
+      const { lines, requirements } = validated;
+      const payment = posSettings[cashier].payment;
+      const subtotal = lines.reduce((sum, line) => sum + line.price * line.qty, 0);
+      const discountRate = Number(posSettings[cashier].discount) || 0;
+      const discount = Math.round(subtotal * discountRate / 100);
+      const total = subtotal - discount;
+      const cashReceived = payment === 'Tunai' ? Number(document.getElementById('checkout-cash-received')?.value) : total;
+      if (payment === 'Tunai' && (!Number.isFinite(cashReceived) || cashReceived < total)) return toast('Uang diterima harus sama dengan atau lebih besar dari total pembayaran.', 'error');
+      const before = clone(db);
+      checkoutInProgress = true;
+      let cogs = 0;
+      const consumption = [];
+      for (const need of requirements.values()) {
+        if (need.source === 'daily') {
+          db.shift.dailyStock[need.item.id].available = round3(db.shift.dailyStock[need.item.id].available - need.qty);
+        } else {
+          need.item.stock = round3(need.item.stock - need.qty);
+        }
+        recordStockMovement(need.item, need.source, -need.qty, 'Penjualan', lines.map(line => line.name).join(', '));
+        consumption.push({ inventoryId: need.item.id, source: need.source, qty: round3(need.qty) });
+        cogs += need.qty * Number(need.item.cost || 0);
+      }
+      const now = new Date();
+      let sequence = Math.max(1, Number(db.nextTransactionSequence) || 1);
+      let id = `TRX-${String(sequence).padStart(6, '0')}`;
+      while (db.transactions.some(transaction => transaction.id === id)) id = `TRX-${String(++sequence).padStart(6, '0')}`;
+      db.nextTransactionSequence = sequence + 1;
+      const transaction = {
+        id,
+        cashier,
+        timestamp: now.toISOString(),
+        date: localDate(now),
+        time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        items: lines.map(line => `${line.name} (${line.qty})`).join(', '),
+        lines: lines.map(line => ({ ...line })),
+        consumption,
+        shiftId: cashier === 'daily' ? db.shift.id : null,
+        discount,
+        paymentMethod: payment,
+        paymentStatus: 'Dikonfirmasi manual',
+        cashReceived: payment === 'Tunai' ? cashReceived : null,
+        change: payment === 'Tunai' ? cashReceived - total : 0,
+        status: 'Selesai',
+        total,
+        cogs: round2(cogs),
+        profit: round2(total - cogs)
+      };
+      lines.forEach(line => { const item = menuItem(line.id); if (item) item.sold = (Number(item.sold) || 0) + line.qty; });
+      db.transactions.unshift(transaction);
+      if (!saveDB()) {
+        db = before;
+        checkoutInProgress = false;
+        render();
+        return;
+      }
+      cart[cashier] = [];
+      posSettings[cashier].discount = 0;
+      posSettings[cashier].cashReceived = 0;
+      checkoutInProgress = false;
+      closeModal();
+      render();
+      toast(`Transaksi ${id} berhasil · ${money(total)} · HPP ${money(cogs)} tercatat.`, 'success');
+      showTransactionReceipt(id);
+    }
+
+    function round3(value) { return Number(Number(value).toFixed(3)); }
+    function round2(value) { return Number(Number(value).toFixed(2)); }
+
+    function openStartShiftModal() {
+      if (db.shift.active) return toast('Shift sudah aktif.', 'info');
+      const stockRows = db.inventory.map(item => `<label class="row" style="cursor:pointer"><span class="row-main"><strong>${escapeHtml(item.name)}</strong><small>Gudang tersedia ${quantity(item.stock)} ${escapeHtml(item.unit)}</small></span><span style="display:flex;align-items:center;gap:7px"><input aria-label="Alokasi ${escapeHtml(item.name)}" type="number" min="0" max="${item.stock}" step="0.001" value="0" data-allocation="${item.id}" style="width:94px;padding:8px;border:1px solid var(--line);border-radius:8px"><small>${escapeHtml(item.unit)}</small></span></label>`).join('');
+      showModal('Mulai shift & alokasikan stok', 'Tentukan bahan yang dipindahkan dari Gudang Induk ke stok jualan hari ini.', `
+        <div class="field" style="margin-bottom:12px">Modal awal kas / uang kembalian (Rp)<input id="shift-cash" type="number" min="0" step="1000" value="100000" required></div>
+        <div class="list" style="max-height:47vh;overflow:auto">${stockRows}</div>
+        <div class="modal-actions"><button class="secondary" onclick="closeModal()">Batal</button><button class="primary" onclick="startShift()">▶ &nbsp;Mulai shift</button></div>`);
+    }
+
+    function startShift() {
+      const cash = Number(document.getElementById('shift-cash').value);
+      if (!Number.isFinite(cash) || cash < 0) return toast('Modal awal harus berupa angka nol atau lebih.', 'error');
+      const allocations = {};
+      let hasAllocation = false;
+      for (const input of document.querySelectorAll('[data-allocation]')) {
+        const item = inventoryItem(input.dataset.allocation);
+        const qty = Number(input.value);
+        if (!Number.isFinite(qty) || qty < 0) return toast(`Alokasi ${item.name} tidak valid.`, 'error');
+        if (qty > item.stock + 1e-9) return toast(`Stok gudang ${item.name} tidak cukup untuk alokasi.`, 'error');
+        if (qty > 0) { allocations[item.id] = { opening: round3(qty), added: 0, available: round3(qty) }; hasAllocation = true; }
+      }
+      if (!hasAllocation) return toast('Alokasikan minimal satu bahan untuk memulai shift.', 'warning');
+      const before = clone(db);
+      for (const [id, stock] of Object.entries(allocations)) {
+        const item = inventoryItem(id);
+        item.stock = round3(item.stock - stock.opening);
+        recordStockMovement(item, 'warehouse', -stock.opening, 'Alokasi shift', 'Transfer ke stok jualan harian');
+        recordStockMovement(item, 'daily', stock.opening, 'Alokasi shift', 'Transfer dari Gudang Induk');
+      }
+      const now = new Date();
+      db.shift = { active: true, id: `SHIFT-${localDate(now)}-${now.getTime().toString().slice(-4)}`, startedAt: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), startedISO: now.toISOString(), date: localDate(now), initialCash: cash, dailyStock: allocations, additions: [], closedAt: null };
+      if (!saveDB()) {
+        db = before;
+        render();
+        return;
+      }
+      closeModal();
+      toast('Shift aktif. Alokasi stok sudah dipindahkan dari Gudang Induk.', 'success');
+      switchTab('dashboard');
+    }
+
+    function stopShift() {
+      if (!db.shift.active) return;
+      const remaining = Object.values(db.shift.dailyStock).reduce((sum, item) => sum + Number(item.available || 0), 0);
+      if (!confirm(`Akhiri shift? Sisa stok jualan (${quantity(remaining)} unit) akan dikembalikan ke Gudang Induk dan tercatat.`)) return;
+      const before = clone(db);
+      const now = new Date();
+      for (const [id, daily] of Object.entries(db.shift.dailyStock)) {
+        const item = inventoryItem(id);
+        if (item) {
+          const returned = Number(daily.available || 0);
+          if (returned > 0) {
+            item.stock = round3(item.stock + returned);
+            recordStockMovement(item, 'daily', -returned, 'Penutupan shift', 'Sisa stok dikembalikan ke Gudang Induk');
+            recordStockMovement(item, 'warehouse', returned, 'Penutupan shift', 'Sisa stok dari shift');
+          }
+        }
+      }
+      const shiftTransactions = activeTransactions().filter(item => !item.isSimulated && item.date === db.shift.date && item.timestamp >= (db.shift.startedISO || ''));
+      db.shiftHistory.unshift({
+        id: db.shift.id, date: db.shift.date, startedAt: db.shift.startedAt, closedAt: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        initialCash: db.shift.initialCash, transactions: shiftTransactions.length,
+        revenue: shiftTransactions.filter(item => item.cashier === 'daily').reduce((sum, item) => sum + item.total, 0),
+        returned: Object.fromEntries(Object.entries(db.shift.dailyStock).map(([id, stock]) => [id, Number(stock.available || 0)])),
+        additions: db.shift.additions
+      });
+      db.shift.active = false;
+      db.shift.closedAt = now.toISOString();
+      Object.values(db.shift.dailyStock).forEach(item => { item.available = 0; });
+      if (!saveDB()) {
+        db = before;
+        render();
+        return;
+      }
+      toast('Shift selesai. Sisa stok harian dikembalikan ke Gudang Induk.', 'success');
+      render();
+    }
+
+    function renderShiftStock() {
+      const action = db.shift.active ? '<button class="primary" onclick="openEmergencyStockModal()">＋ &nbsp;Tambah Stok Darurat</button>' : '<button class="primary" onclick="openStartShiftModal()">▶ &nbsp;Mulai Shift & Alokasi</button>';
+      const rows = Object.entries(db.shift.dailyStock || {}).map(([id, stock]) => {
+        const item = inventoryItem(id);
+        if (!item) return '';
+        const percentage = stock.opening + stock.added > 0 ? Math.max(0, Math.min(100, stock.available / (stock.opening + stock.added) * 100)) : 0;
+        return `<tr><td class="table-name">${escapeHtml(item.name)}</td><td>${quantity(stock.opening)} ${escapeHtml(item.unit)}</td><td>${quantity(stock.added)} ${escapeHtml(item.unit)}</td><td><strong>${quantity(stock.available)} ${escapeHtml(item.unit)}</strong><div style="width:110px;height:4px;margin-top:6px;border-radius:4px;background:#e2e8f0"><div style="width:${percentage}%;height:4px;border-radius:4px;background:${percentage < 20 ? '#ef4444' : '#1677C8'}"></div></div></td><td><span class="pill ${stock.available <= item.min ? 'red' : 'green'}">${stock.available <= item.min ? 'Menipis' : 'Tersedia'}</span></td></tr>`;
+      }).join('');
+      const additions = db.shift.additions || [];
+      return `${pageHeading('Stok Jualan Harian', db.shift.active ? `Shift aktif sejak ${escapeHtml(db.shift.startedAt)} · alokasi hanya berlaku hari ini.` : 'Mulai shift untuk memindahkan persediaan dari Gudang Induk.', action)}
+        <div class="split-banner"><article class="source-card"><div class="source-icon">◷</div><div><h3>${db.shift.active ? 'Shift berjalan' : 'Tidak ada shift aktif'}</h3><p>${db.shift.active ? 'Kasir Harian memotong stok ini secara real-time.' : 'Stok harian tidak bisa dijual ketika toko tutup.'}</p></div><span class="pill ${db.shift.active ? 'green' : 'amber'}" style="margin-left:auto">${db.shift.active ? 'AKTIF' : 'NONAKTIF'}</span></article><article class="source-card"><div class="source-icon">↔</div><div><h3>Transfer stok tercatat</h3><p>Alokasi dan sisa shift direkonsiliasi ke Gudang Induk.</p></div></article></div>
+        <article class="card"><div class="card-title"><div><h3>Saldo alokasi shift</h3><p>Stok awal + stok darurat − pemakaian resep = sisa tersedia.</p></div>${db.shift.active ? `<span class="pill green">${Object.keys(db.shift.dailyStock).length} bahan aktif</span>` : ''}</div>
+          ${rows ? `<div class="table-wrap"><table><thead><tr><th>Bahan</th><th>Alokasi awal</th><th>Tambah darurat</th><th>Sisa tersedia</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">Belum ada alokasi stok pada shift ini. Mulai shift dengan memilih bahan dan jumlahnya.</div>'}
+        </article>
+        <article class="card" style="margin-top:16px"><div class="card-title"><div><h3>Riwayat penambahan darurat</h3><p>Jejak stok transparan untuk rekonsiliasi modal dan laporan.</p></div><span class="pill">${additions.length} catatan</span></div>
+          ${additions.length ? `<div class="list">${additions.slice().reverse().map(entry => { const item = inventoryItem(entry.inventoryId); return `<div class="row"><div class="row-main"><strong>${escapeHtml(item?.name || 'Bahan')} · ${quantity(entry.before)} + ${quantity(entry.qty)} ${escapeHtml(item?.unit || '')} = ${quantity(entry.after)} ${escapeHtml(item?.unit || '')}</strong><small>${escapeHtml(entry.time)} · dipindahkan dari Gudang Induk</small></div><div class="row-side"><strong>${money(entry.cost)}</strong><small>nilai modal tambahan</small></div></div>`; }).join('')}</div>` : '<div class="empty">Belum ada tambahan darurat. Setiap penambahan mencatat stok sebelum, jumlah tambahan, stok sesudah, dan modal.</div>'}
+        </article>`;
+    }
+
+    function openEmergencyStockModal() {
+      if (!db.shift.active) return toast('Mulai shift sebelum menambah stok jualan harian.', 'warning');
+      const options = db.inventory.map(item => `<option value="${item.id}">${escapeHtml(item.name)} · gudang ${quantity(item.stock)} ${escapeHtml(item.unit)} · sisa shift ${quantity(db.shift.dailyStock[item.id]?.available || 0)} ${escapeHtml(item.unit)}</option>`).join('');
+      showModal('Tambah stok darurat', 'Jumlah dipindahkan dari Gudang Induk. Perubahan saldo dan nilai modal dicatat otomatis.', `
+        <form id="emergency-form" onsubmit="event.preventDefault();addEmergencyStock()"><div class="form-grid">
+          <label class="field">Bahan baku<select id="emergency-item" required>${options}</select></label>
+          <label class="field">Jumlah tambahan<input id="emergency-qty" type="number" min="0.001" step="0.001" placeholder="Contoh: 4" required></label>
+        </div><p id="emergency-cost-preview" class="section-note" style="margin-top:12px">Jumlah dan nilai modal akan tercatat di riwayat shift.</p>
+        <div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary" type="submit">＋ &nbsp;Tambah stok</button></div></form>`);
+      document.getElementById('emergency-item').addEventListener('change', updateEmergencyPreview);
+      document.getElementById('emergency-qty').addEventListener('input', updateEmergencyPreview);
+      updateEmergencyPreview();
+    }
+
+    function updateEmergencyPreview() {
+      const item = inventoryItem(document.getElementById('emergency-item')?.value);
+      const qty = Number(document.getElementById('emergency-qty')?.value) || 0;
+      const preview = document.getElementById('emergency-cost-preview');
+      if (item && preview) preview.textContent = `Nilai modal tambahan: ${money(qty * item.cost)} · Gudang tersedia ${quantity(item.stock)} ${item.unit}.`;
+    }
+
+    function addEmergencyStock() {
+      const item = inventoryItem(document.getElementById('emergency-item').value);
+      const amount = Number(document.getElementById('emergency-qty').value);
+      if (!db.shift.active || !item || !Number.isFinite(amount) || amount <= 0) return toast('Pilih bahan dan jumlah tambahan yang valid.', 'error');
+      if (item.stock + 1e-9 < amount) return toast(`Gudang Induk ${item.name} hanya memiliki ${quantity(item.stock)} ${item.unit}.`, 'error');
+      const beforeState = clone(db);
+      const record = db.shift.dailyStock[item.id] || { opening: 0, added: 0, available: 0 };
+      const before = Number(record.available || 0);
+      record.added = round3(Number(record.added || 0) + amount);
+      record.available = round3(before + amount);
+      db.shift.dailyStock[item.id] = record;
+      item.stock = round3(item.stock - amount);
+      recordStockMovement(item, 'warehouse', -amount, 'Stok darurat', 'Dipindahkan ke stok jualan harian');
+      recordStockMovement(item, 'daily', amount, 'Stok darurat', 'Tambahan stok untuk shift aktif');
+      db.shift.additions.push({ inventoryId: item.id, before, qty: round3(amount), after: record.available, cost: round2(amount * item.cost), time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) });
+      if (!saveDB()) {
+        db = beforeState;
+        render();
+        return;
+      }
+      closeModal();
+      toast(`Stok ${item.name}: ${quantity(before)} + ${quantity(amount)} ${item.unit} tercatat.`, 'success');
+      render();
+    }
+
+    function renderWarehouse() {
+      const rows = db.inventory.map(item => `<tr data-inventory-row data-search="${escapeHtml(`${item.name} ${item.unit}`.toLowerCase())}"><td class="table-name">${escapeHtml(item.name)}</td><td><strong>${quantity(item.stock)} ${escapeHtml(item.unit)}</strong></td><td>${quantity(item.min)} ${escapeHtml(item.unit)}</td><td>${money(item.cost)} / ${escapeHtml(item.unit)}</td><td>${item.expiryDate ? escapeHtml(item.expiryDate) : '—'}</td><td><span class="pill ${item.stock <= item.min ? 'red' : 'green'}">${item.stock <= item.min ? 'Perlu restock' : 'Aman'}</span></td><td><div class="table-actions"><button class="secondary" onclick="openRestockModal(${item.id})">＋ Restock</button><button class="ghost" onclick="openInventoryModal(${item.id})">Ubah</button><button class="ghost" onclick="openInventoryAdjustmentModal(${item.id})">Opname</button></div></td></tr>`).join('');
+      const purchases = db.purchases.reduce((sum, purchase) => sum + Number(purchase.total || 0), 0);
+      return `${pageHeading('Gudang Induk Sembako', 'Persediaan induk untuk barang eceran, bahan resep, dan alokasi stok jualan harian.', '<button class="primary" onclick="openInventoryModal()">＋ &nbsp;Tambah Barang</button>')}
+        <div class="grid stats" style="margin-top:0">${statCard('Jenis persediaan', db.inventory.length, 'Bahan, bumbu, minuman & kemasan', '▦')}${statCard('Nilai persediaan', money(db.inventory.reduce((sum, item) => sum + item.stock * item.cost, 0)), 'Nilai modal berdasarkan stok tersisa', '◈', 'cyan')}${statCard('Perlu restock', db.inventory.filter(item => item.stock <= item.min).length, 'Saldo mencapai batas minimum', '⚑', 'amber')}${statCard('Riwayat pembelian', db.purchases.length, `Total ${money(purchases)}`, '▤', 'green')}</div>
+        <article class="card"><div class="card-title"><div><h3>Riwayat pembelian persediaan</h3><p>Setiap restock menyimpan tanggal, barang, jumlah, harga, total, dan pemasok.</p></div><button class="secondary" onclick="exportPurchasesCsv()">Unduh CSV</button></div>${renderPurchaseHistoryTable()}</article>
+        <article class="card" style="margin-top:16px"><div class="card-title"><div><h3>Daftar persediaan induk</h3><p>Kasir 2 memotong stok langsung. Alokasi kasir 1 mengurangi stok ini saat shift dimulai.</p></div><label class="field" style="max-width:260px;margin:0">Cari bahan<input id="warehouse-search" type="search" value="${escapeHtml(warehouseSearch)}" placeholder="Nama bahan atau satuan" oninput="filterWarehouseItems(this.value)"></label></div><div id="inventory-filter-count" class="section-note" style="margin:0 0 10px">${db.inventory.length} jenis persediaan</div><div class="table-wrap"><table><thead><tr><th>Nama bahan</th><th>Stok saat ini</th><th>Batas minimum</th><th>Harga pokok / unit</th><th>Kedaluwarsa</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></article>
+        <article class="card" style="margin-top:16px"><div class="card-title"><div><h3>Riwayat pergerakan stok</h3><p>Transfer, penjualan, restock, dan pengembalian terakhir.</p></div></div>${renderStockMovementTable()}</article>`;
+    }
+
+    function filterWarehouseItems(query) {
+      warehouseSearch = query;
+      const normalized = query.trim().toLocaleLowerCase('id-ID');
+      const rows = [...document.querySelectorAll('[data-inventory-row]')];
+      let visible = 0;
+      rows.forEach(row => {
+        const matches = !normalized || row.dataset.search.includes(normalized);
+        row.hidden = !matches;
+        if (matches) visible++;
+      });
+      const count = document.getElementById('inventory-filter-count');
+      if (count) count.textContent = `${visible} dari ${rows.length} jenis persediaan`;
+    }
+
+    function renderPurchaseHistoryTable() {
+      const purchases = db.purchases.slice().sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
+      if (!purchases.length) return '<div class="empty">Belum ada pembelian yang tercatat. Gunakan tombol Restock pada barang; setiap transaksi berikutnya otomatis masuk ke riwayat ini. Data lama tidak diisi dengan pembelian contoh.</div>';
+      const rows = purchases.slice(0, 100).map(purchase => {
+        const item = inventoryItem(purchase.inventoryId);
+        const timestamp = purchase.timestamp ? new Date(purchase.timestamp) : null;
+        const date = timestamp && !Number.isNaN(timestamp.getTime()) ? timestamp.toLocaleString('id-ID') : '—';
+        return `<tr><td>${escapeHtml(date)}</td><td><strong>${escapeHtml(purchase.id || '—')}</strong></td><td class="table-name">${escapeHtml(item?.name || 'Barang tidak ditemukan')}</td><td>${quantity(purchase.quantity)} ${escapeHtml(item?.unit || '')}</td><td>${money(purchase.unitCost)} / ${escapeHtml(item?.unit || '')}</td><td><strong>${money(purchase.total)}</strong></td><td>${escapeHtml(purchase.supplier || '—')}</td><td>${purchase.expiryDate ? escapeHtml(purchase.expiryDate) : '—'}</td></tr>`;
+      }).join('');
+      return `<div class="section-note">Menampilkan ${Math.min(purchases.length, 100)} dari ${purchases.length} transaksi pembelian terbaru.</div><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>No. pembelian</th><th>Nama barang</th><th>Jumlah</th><th>Harga satuan</th><th>Total</th><th>Pemasok</th><th>Kedaluwarsa</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    function exportPurchasesCsv() {
+      const purchases = db.purchases.slice().sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
+      exportCsv('stocklogic_riwayat_pembelian.csv', [['Tanggal', 'No. pembelian', 'Barang', 'Jumlah', 'Satuan', 'Harga satuan', 'Total', 'Pemasok', 'Kedaluwarsa'], ...purchases.map(purchase => {
+        const item = inventoryItem(purchase.inventoryId);
+        return [purchase.timestamp || '', purchase.id || '', item?.name || 'Barang tidak ditemukan', purchase.quantity, item?.unit || '', purchase.unitCost, purchase.total, purchase.supplier || '', purchase.expiryDate || ''];
+      })]);
+    }
+
+    function openRestockModal(id) {
+      const item = inventoryItem(id);
+      showModal(`Restock ${item.name}`, 'Stok ditambahkan ke Gudang Induk dan langsung tersedia untuk transaksi berikutnya.', `
+        <form onsubmit="event.preventDefault();restockInventory(${item.id})"><div class="form-grid">
+          <label class="field">Jumlah restock (${escapeHtml(item.unit)})<input id="restock-qty" type="number" min="0.001" step="0.001" required placeholder="Contoh: 10"></label>
+          <label class="field">Harga beli per ${escapeHtml(item.unit)} (Rp)<input id="restock-cost" type="number" min="0" step="1" value="${item.cost}" required></label>
+          <label class="field">Supplier<input id="restock-supplier" maxlength="80" placeholder="Nama supplier / toko"></label>
+          <label class="field">Tanggal kedaluwarsa (opsional)<input id="restock-expiry" type="date" value="${escapeHtml(item.expiryDate || '')}"></label>
+        </div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan restock</button></div></form>`);
+    }
+
+    function restockInventory(id) {
+      const item = inventoryItem(id);
+      const amount = Number(document.getElementById('restock-qty').value);
+      const cost = Number(document.getElementById('restock-cost').value);
+      if (!item || !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(cost) || cost < 0) return toast('Jumlah dan harga restock harus valid.', 'error');
+      const supplier = document.getElementById('restock-supplier').value.trim();
+      const expiryDate = document.getElementById('restock-expiry').value;
+      if (expiryDate && expiryDate < localDate()) return toast('Tanggal kedaluwarsa tidak boleh di masa lalu.', 'error');
+      const beforeState = clone(db);
+      const previousStock = Number(item.stock || 0);
+      const nextStock = round3(previousStock + amount);
+      item.cost = nextStock > 0
+        ? round2((previousStock * Number(item.cost || 0) + amount * cost) / nextStock)
+        : round2(cost);
+      item.stock = nextStock;
+      item.expiryDate = expiryDate || item.expiryDate || '';
+      let purchaseId = `PO-${Date.now()}`;
+      let purchaseSequence = 1;
+      while (db.purchases.some(purchase => purchase.id === purchaseId)) purchaseId = `PO-${Date.now()}-${purchaseSequence++}`;
+      db.purchases.unshift({ id: purchaseId, inventoryId: item.id, quantity: round3(amount), unitCost: cost, total: round2(amount * cost), supplier, timestamp: new Date().toISOString(), expiryDate });
+      recordStockMovement(item, 'warehouse', amount, 'Restock', supplier || 'Pembelian stok');
+      if (!saveDB()) {
+        db = beforeState;
+        render();
+        return;
+      }
+      closeModal();
+      toast(`${quantity(amount)} ${item.unit} ${item.name} ditambahkan ke Gudang Induk.`, 'success');
+      render();
+    }
+
+    function openInventoryModal(id = null) {
+      const item = id == null ? null : inventoryItem(id);
+      if (id != null && !item) return toast('Bahan tidak ditemukan.', 'error');
+      editingInventoryId = item?.id || null;
+      showModal(item ? 'Ubah data bahan' : 'Tambah barang gudang', item ? 'Perbarui nama, batas minimum, biaya rata-rata, atau tanggal kedaluwarsa. Satuan tidak diubah agar resep tetap konsisten.' : 'Buat item stok baru untuk dipakai di resep atau dijual melalui Kasir 2.', `
+        <form onsubmit="event.preventDefault();createInventory()"><div class="form-grid">
+          <label class="field">Nama barang<input id="new-stock-name" maxlength="60" required placeholder="Contoh: Garam" value="${escapeHtml(item?.name || '')}"></label>
+          ${item ? `<label class="field">Satuan (tidak dapat diubah)<input value="${escapeHtml(item.unit)}" disabled></label>` : '<label class="field">Satuan<input id="new-stock-unit" maxlength="16" required placeholder="kg, liter, pcs"></label>'}
+          ${item ? '' : '<label class="field">Stok awal<input id="new-stock-amount" type="number" min="0" step="0.001" required value="0"></label>'}
+          <label class="field">Batas minimum<input id="new-stock-min" type="number" min="0" step="0.001" required value="${item?.min ?? 0}"></label>
+          <label class="field">Harga pokok rata-rata per satuan (Rp)<input id="new-stock-cost" type="number" min="0" step="0.01" required value="${item?.cost ?? 0}"></label>
+          <label class="field">Tanggal kedaluwarsa (opsional)<input id="new-stock-expiry" type="date" value="${escapeHtml(item?.expiryDate || '')}"></label>
+        </div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">＋ &nbsp;Simpan barang</button></div></form>`);
+    }
+
+    function createInventory() {
+      const name = document.getElementById('new-stock-name').value.trim();
+      const current = editingInventoryId ? inventoryItem(editingInventoryId) : null;
+      const unit = current?.unit || document.getElementById('new-stock-unit').value.trim();
+      const stock = current ? Number(current.stock) : Number(document.getElementById('new-stock-amount').value);
+      const min = Number(document.getElementById('new-stock-min').value);
+      const cost = Number(document.getElementById('new-stock-cost').value);
+      const expiryDate = document.getElementById('new-stock-expiry').value;
+      if (!name || !unit || [stock, min, cost].some(value => !Number.isFinite(value) || value < 0)) return toast('Lengkapi semua data barang dengan nilai yang valid.', 'error');
+      if (expiryDate && expiryDate < localDate()) return toast('Tanggal kedaluwarsa tidak boleh di masa lalu.', 'error');
+      if (db.inventory.some(item => item.name.toLowerCase() === name.toLowerCase() && item.id !== editingInventoryId)) return toast('Nama barang sudah ada di gudang.', 'error');
+      const beforeState = clone(db);
+      const item = current || { id: Date.now(), name, unit, stock: round3(stock), min: round3(min), cost: round2(cost), expiryDate };
+      if (current) Object.assign(item, { name, min: round3(min), cost: round2(cost), expiryDate });
+      else {
+        db.inventory.push(item);
+        if (stock > 0) recordStockMovement(item, 'warehouse', stock, 'Stok awal', 'Barang baru ditambahkan');
+      }
+      if (!saveDB()) {
+        db = beforeState;
+        render();
+        return;
+      }
+      closeModal();
+      editingInventoryId = null;
+      toast(`${name} berhasil ${current ? 'diperbarui' : 'ditambahkan ke Gudang Induk'}.`, 'success');
+      render();
+    }
+
+    function openInventoryAdjustmentModal(id) {
+      const item = inventoryItem(id);
+      if (!item) return toast('Bahan tidak ditemukan.', 'error');
+      showModal(`Opname stok · ${item.name}`, 'Gunakan nilai positif untuk menambah stok atau negatif untuk mencatat kehilangan. Perubahan memiliki alasan dan riwayat.', `
+        <form onsubmit="event.preventDefault();adjustInventory(${item.id})"><label class="field">Perubahan stok (${escapeHtml(item.unit)})<input id="stock-adjustment-qty" type="number" step="0.001" required placeholder="Contoh: -1.5"></label>
+          <label class="field" style="margin-top:12px">Alasan penyesuaian<textarea id="stock-adjustment-note" maxlength="160" required placeholder="Contoh: selisih stok opname"></textarea></label>
+          <div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan penyesuaian</button></div></form>`);
+    }
+
+    function adjustInventory(id) {
+      const item = inventoryItem(id);
+      const delta = Number(document.getElementById('stock-adjustment-qty').value);
+      const note = document.getElementById('stock-adjustment-note').value.trim();
+      if (!item || !Number.isFinite(delta) || delta === 0 || !note) return toast('Masukkan perubahan stok dan alasan yang valid.', 'error');
+      if (item.stock + delta < -1e-9) return toast(`Stok ${item.name} tidak boleh negatif; tersedia ${quantity(item.stock)} ${item.unit}.`, 'error');
+      const beforeState = clone(db);
+      item.stock = round3(Math.max(0, item.stock + delta));
+      recordStockMovement(item, 'warehouse', delta, 'Penyesuaian stok', note);
+      if (!saveDB()) {
+        db = beforeState;
+        render();
+        return;
+      }
+      closeModal();
+      toast(`Stok ${item.name} disesuaikan ${delta > 0 ? '+' : ''}${quantity(delta)} ${item.unit}.`, 'success');
+      render();
+    }
+
+    function renderMenu() {
+      const cards = db.menus.map(item => `<article class="card menu-card"><div class="menu-card-head">${renderCover(item.cover, item.emoji, 'menu-cover')}<span class="pill ${item.category === 'Sembako' ? '' : 'green'}">${escapeHtml(item.category)}</span></div><div><h3>${escapeHtml(item.name)}</h3><p>${money(item.price)} · ${Number(item.sold) || 0} terjual</p></div><div class="recipe-list"><strong style="color:var(--navy)">Resep · ${item.recipe.length} bahan</strong>${item.recipe.map(part => { const stock = inventoryItem(part.inventoryId); return `<span>• ${escapeHtml(stock?.name || 'Bahan tidak ditemukan')} — ${quantity(part.qty)} ${escapeHtml(stock?.unit || '')} / porsi <span class="pill ${part.source === 'daily' ? 'green' : ''}" style="padding:2px 6px">${part.source === 'daily' ? 'Stok harian' : 'Gudang induk'}</span></span>`; }).join('')}<div class="table-actions"><button class="secondary" onclick="openMenuModal(${item.id})">Ubah menu & resep</button></div></div></article>`).join('');
+      return `${pageHeading('Daftar Menu & Resep', 'Setiap produk wajib memiliki resep bahan baku. Pemotongan stok mengikuti sumber yang dipilih per bahan.', '<button class="primary" onclick="openMenuModal()">＋ &nbsp;Tambah Menu Baru</button>')}
+        <div class="split-banner"><article class="source-card"><div class="source-icon">📋</div><div><h3>Resep adalah syarat penjualan</h3><p>Menu tanpa bahan baku atau takaran valid tidak bisa disimpan dan dijual.</p></div></article><article class="source-card"><div class="source-icon">↔</div><div><h3>Sumber stok dapat dicampur</h3><p>Pilih stok harian atau Gudang Induk untuk setiap bahan dalam resep.</p></div></article></div>
+        ${cards ? `<section class="grid menu-grid">${cards}</section>` : '<div class="empty">Belum ada menu. Gunakan tombol Tambah Menu Baru untuk mulai membuat menu dengan resep.</div>'}`;
+    }
+
+    function openMenuModal(id = null) {
+      const menu = id == null ? null : menuItem(id);
+      if (id != null && !menu) return toast('Menu tidak ditemukan.', 'error');
+      editingMenuId = menu?.id || null;
+      menuCoverType = menu?.cover?.startsWith('data:image/') ? 'photo' : 'emoji';
+      menuCoverValue = menu && menuCoverType === 'emoji' ? (menu.cover || menu.emoji || '🍽️') : '🍽️';
+      menuUploadedCover = menuCoverType === 'photo' ? menu.cover : '';
+      showModal(menu ? 'Ubah menu & resep' : 'Tambah menu baru', 'Daftarkan produk beserta resep per porsi. Harga dan takaran harus lebih besar dari nol.', `
+        <form id="menu-form" onsubmit="event.preventDefault();createMenu()">
+          <div class="form-grid">
+            <label class="field">Nama menu<input id="menu-name" maxlength="70" required placeholder="Contoh: Ayam Geprek" value="${escapeHtml(menu?.name || '')}"></label>
+            <label class="field">Kategori<select id="menu-category" required>${['Makanan', 'Minuman', 'Sembako'].map(category => `<option ${menu?.category === category ? 'selected' : ''}>${category}</option>`).join('')}</select></label>
+            <label class="field">Harga jual (Rp)<input id="menu-price" type="number" min="1" step="1" required placeholder="Contoh: 20000" value="${menu?.price || ''}"></label>
+          </div>
+          <section class="cover-options" style="margin-top:16px">
+            <div><strong style="display:block;color:var(--navy);font-size:11px">Cover Menu (Foto / Emoji)</strong><small style="color:var(--muted);font-size:10px">Pilih foto produk atau gunakan emoji sebagai penanda menu.</small></div>
+            <div class="cover-tabs" role="tablist" aria-label="Jenis cover menu">
+              <button id="cover-tab-photo" type="button" role="tab" aria-selected="${menuCoverType === 'photo'}" onclick="selectMenuCoverType('photo')">▧ &nbsp;Upload Foto</button>
+              <button id="cover-tab-emoji" type="button" role="tab" aria-selected="${menuCoverType === 'emoji'}" onclick="selectMenuCoverType('emoji')">☺ &nbsp;Pilih Emoji</button>
+            </div>
+            <div class="cover-panel" id="cover-panel-photo" role="tabpanel" hidden>
+              <div class="cover-upload-row">
+                <div id="cover-preview-photo" class="cover-preview" aria-label="Pratinjau foto cover">📷</div>
+                <label class="field" style="flex:1">Pilih foto dari perangkat<input id="menu-cover-file" type="file" accept="image/*"><small style="font-weight:400">Pratinjau diperbarui saat file dipilih. Maks. 8 MB.</small></label>
+              </div>
+            </div>
+            <div class="cover-panel" id="cover-panel-emoji" role="tabpanel">
+              <div class="cover-upload-row">
+                <div id="cover-preview-emoji" class="cover-preview" aria-label="Pratinjau emoji">${escapeHtml(menuCoverValue)}</div>
+                <div><strong style="color:var(--navy);font-size:10px">Pilih ikon cepat</strong><small style="display:block;color:var(--muted);font-size:10px">Pilih emoji yang mewakili produk.</small></div>
+              </div>
+              <div class="cover-emoji-grid">${QUICK_EMOJIS.map(emoji => `<button type="button" data-cover-emoji="${emoji}" class="${emoji === menuCoverValue ? 'active' : ''}" aria-label="Pilih ${emoji}" aria-pressed="${emoji === menuCoverValue}" onclick="chooseMenuEmoji('${emoji}')">${emoji}</button>`).join('')}</div>
+            </div>
+          </section>
+          <div class="card-title" style="margin:18px 0 9px"><div><h3>Pengaturan resep per 1 porsi</h3><p>Pilih bahan, sumber stok, dan takaran yang dipotong setiap terjual.</p></div><button type="button" class="secondary" onclick="addRecipeRow()">＋ Bahan</button></div>
+          <div id="recipe-rows" class="list"></div>
+          <div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary" type="submit">Simpan menu & resep</button></div>
+        </form>`);
+      document.getElementById('cover-panel-photo').hidden = menuCoverType !== 'photo';
+      document.getElementById('cover-panel-emoji').hidden = menuCoverType !== 'emoji';
+      document.getElementById(`cover-tab-${menuCoverType}`).classList.add('active');
+      document.getElementById('menu-cover-file').addEventListener('change', handleMenuCoverUpload);
+      updateMenuCoverPreview();
+      if (menu) {
+        menu.recipe.forEach(part => {
+          addRecipeRow();
+          const row = document.querySelector('#recipe-rows .recipe-row:last-child');
+          row.querySelector('[data-recipe-inventory]').value = String(part.inventoryId);
+          row.querySelector('[data-recipe-source]').value = part.source;
+          row.querySelector('[data-recipe-qty]').value = part.qty;
+        });
+      } else {
+        addRecipeRow();
+      }
+    }
+
+    function renderCover(cover, fallbackEmoji, className) {
+      const value = typeof cover === 'string' && cover ? cover : (fallbackEmoji || '🍽️');
+      if (value.startsWith('data:image/')) return `<span class="${className}"><img src="${escapeHtml(value)}" alt="Cover ${escapeHtml(fallbackEmoji || 'menu')}" loading="lazy"></span>`;
+      return `<span class="${className}" aria-label="Ikon ${escapeHtml(fallbackEmoji || 'menu')}">${escapeHtml(value)}</span>`;
+    }
+
+    function selectMenuCoverType(type) {
+      if (!['photo', 'emoji'].includes(type)) return;
+      menuCoverType = type;
+      document.getElementById('cover-panel-photo').hidden = type !== 'photo';
+      document.getElementById('cover-panel-emoji').hidden = type !== 'emoji';
+      document.getElementById('cover-tab-photo').classList.toggle('active', type === 'photo');
+      document.getElementById('cover-tab-emoji').classList.toggle('active', type === 'emoji');
+      document.getElementById('cover-tab-photo').setAttribute('aria-selected', String(type === 'photo'));
+      document.getElementById('cover-tab-emoji').setAttribute('aria-selected', String(type === 'emoji'));
+      updateMenuCoverPreview();
+    }
+
+    function chooseMenuEmoji(emoji) {
+      if (!QUICK_EMOJIS.includes(emoji)) return;
+      menuCoverType = 'emoji';
+      menuCoverValue = emoji;
+      selectMenuCoverType('emoji');
+      document.querySelectorAll('[data-cover-emoji]').forEach(button => {
+        const selected = button.dataset.coverEmoji === emoji;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+    }
+
+    function updateMenuCoverPreview() {
+      const preview = document.getElementById(menuCoverType === 'photo' ? 'cover-preview-photo' : 'cover-preview-emoji');
+      if (!preview) return;
+      if (menuCoverType === 'photo' && menuUploadedCover) {
+        preview.innerHTML = `<img src="${escapeHtml(menuUploadedCover)}" alt="Pratinjau cover menu">`;
+      } else {
+        preview.textContent = menuCoverType === 'photo' ? '📷' : menuCoverValue;
+      }
+    }
+
+    function handleMenuCoverUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        event.target.value = '';
+        return toast('Pilih file gambar yang valid.', 'error');
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        event.target.value = '';
+        return toast('Ukuran gambar maksimal 8 MB.', 'warning');
+      }
+      const reader = new FileReader();
+      reader.onerror = () => toast('Gambar gagal dibaca. Coba pilih file lain.', 'error');
+      reader.onload = () => {
+        const image = new Image();
+        image.onerror = () => toast('File tidak dapat diproses sebagai gambar.', 'error');
+        image.onload = () => {
+          const maxDimension = 1200;
+          const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          const context = canvas.getContext('2d');
+          if (!context) return toast('Pratinjau gambar tidak dapat dibuat di browser ini.', 'error');
+          context.fillStyle = '#ffffff';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          try {
+            menuUploadedCover = canvas.toDataURL('image/jpeg', 0.84);
+            menuCoverType = 'photo';
+            selectMenuCoverType('photo');
+            toast('Foto berhasil dimuat. Pratinjau cover sudah diperbarui.', 'success');
+          } catch (error) {
+            console.error('Gagal mengolah foto cover menu:', error);
+            toast('Foto gagal diproses. Coba gunakan gambar lain.', 'error');
+          }
+        };
+        image.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addRecipeRow() {
+      const host = document.getElementById('recipe-rows');
+      if (!host) return;
+      const row = document.createElement('div');
+      row.className = 'recipe-row';
+      row.innerHTML = `<label class="field">Bahan<select data-recipe-inventory required>${db.inventory.map(item => `<option value="${item.id}">${escapeHtml(item.name)} (${escapeHtml(item.unit)})</option>`).join('')}</select></label>
+        <label class="field">Sumber stok<select data-recipe-source required><option value="daily">Stok harian</option><option value="warehouse">Gudang induk</option></select></label>
+        <label class="field">Takaran<input data-recipe-qty type="number" min="0.001" step="0.001" required placeholder="0.1"></label>
+        <button type="button" class="danger remove-row" aria-label="Hapus bahan" onclick="this.parentElement.remove()">×</button>`;
+      host.appendChild(row);
+    }
+
+    function createMenu() {
+      const name = document.getElementById('menu-name').value.trim();
+      const category = document.getElementById('menu-category').value;
+      const price = Number(document.getElementById('menu-price').value);
+      const cover = menuCoverType === 'photo' ? menuUploadedCover : menuCoverValue;
+      const current = editingMenuId ? menuItem(editingMenuId) : null;
+      const rows = [...document.querySelectorAll('.recipe-row')];
+      const recipe = rows.map(row => ({ inventoryId: Number(row.querySelector('[data-recipe-inventory]').value), source: row.querySelector('[data-recipe-source]').value, qty: Number(row.querySelector('[data-recipe-qty]').value) }));
+      if (!name || !['Makanan', 'Minuman', 'Sembako'].includes(category) || !Number.isFinite(price) || price <= 0) return toast('Nama, kategori, dan harga menu wajib valid.', 'error');
+      if (db.menus.some(item => item.name.toLowerCase() === name.toLowerCase() && item.id !== editingMenuId)) return toast('Nama menu sudah digunakan.', 'error');
+      if (menuCoverType === 'photo' && !cover.startsWith('data:image/')) return toast('Unggah foto cover terlebih dahulu atau pilih emoji.', 'warning');
+      if (!recipe.length || recipe.some(part => !inventoryItem(part.inventoryId) || !['daily', 'warehouse'].includes(part.source) || !Number.isFinite(part.qty) || part.qty <= 0)) return toast('Tambahkan minimal satu bahan resep dengan takaran yang valid.', 'error');
+      if (current && !db.menus.includes(current)) return toast('Menu yang diedit sudah tidak tersedia. Buka kembali daftar menu.', 'error');
+      const before = clone(db);
+      if (current) Object.assign(current, { name, category, price: round2(price), emoji: menuCoverType === 'emoji' ? cover : '🍽️', cover, recipe });
+      else db.menus.push({ id: Date.now(), name, category, price: round2(price), emoji: menuCoverType === 'emoji' ? cover : '🍽️', cover, sold: 0, recipe });
+      if (!saveDB()) {
+        db = before;
+        render();
+        return;
+      }
+      closeModal();
+      editingMenuId = null;
+      toast(`${name} ${current ? 'diperbarui' : 'tersimpan'} dengan ${recipe.length} bahan resep.`, 'success');
+      render();
+    }
+
+    const expenseCategories = ['Sewa', 'Listrik', 'Air', 'Gas', 'Transportasi', 'Gaji', 'Perlengkapan', 'Lainnya'];
+    const formatDate = value => value ? new Date(`${value}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+    const transactionDate = item => item.date || localDate(new Date(item.timestamp));
+    const menuCost = menu => (menu.recipe || []).reduce((total, part) => {
+      const item = inventoryItem(part.inventoryId);
+      return total + (item ? Number(part.qty || 0) * Number(item.cost || 0) : 0);
+    }, 0);
+    const lineQuantity = line => Number(line.qty || 0);
+
+    function transactionSalesByMenu() {
+      const sales = new Map(db.menus.map(menu => [menu.id, Array(30).fill(0)]));
+      const today = new Date(`${localDate()}T00:00:00`);
+      activeTransactions().forEach(transaction => {
+        const date = new Date(`${transactionDate(transaction)}T00:00:00`);
+        const daysAgo = Math.round((today - date) / 86400000);
+        if (daysAgo < 0 || daysAgo >= 30 || !Array.isArray(transaction.lines)) return;
+        transaction.lines.forEach(line => {
+          const dailySales = sales.get(Number(line.id));
+          if (dailySales) dailySales[daysAgo] += lineQuantity(line);
+        });
+      });
+      return sales;
+    }
+
+    function buildForecast() {
+      const sales = transactionSalesByMenu();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const weekday = tomorrow.getDay();
+      const menuForecast = new Map();
+      db.menus.forEach(menu => {
+        const history = sales.get(menu.id) || Array(30).fill(0);
+        const sameWeekday = history.filter((_, daysAgo) => daysAgo > 0 && new Date(Date.now() - daysAgo * 86400000).getDay() === weekday);
+        const recentAverage = history.slice(1, 8).reduce((sum, value) => sum + value, 0) / 7;
+        const weekdayAverage = sameWeekday.length ? sameWeekday.reduce((sum, value) => sum + value, 0) / sameWeekday.length : recentAverage;
+        menuForecast.set(menu.id, Math.max(0, Math.round(weekdayAverage * 0.6 + recentAverage * 0.4)));
+      });
+
+      const labels = [];
+      const actual = [];
+      const estimate = [];
+      const totals = Array(30).fill(0);
+      sales.forEach(values => values.forEach((value, index) => { totals[index] += value; }));
+      for (let daysAgo = 14; daysAgo >= 1; daysAgo--) {
+        const date = new Date(Date.now() - daysAgo * 86400000);
+        labels.push(date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+        actual.push(totals[daysAgo]);
+        estimate.push(Math.round(totals.slice(daysAgo + 1, daysAgo + 8).reduce((sum, value) => sum + value, 0) / 7));
+      }
+      labels.push('Besok');
+      actual.push(null);
+      estimate.push([...menuForecast.values()].reduce((sum, value) => sum + value, 0));
+
+      const needs = new Map();
+      db.menus.forEach(menu => (menu.recipe || []).forEach(part => {
+        const item = inventoryItem(part.inventoryId);
+        if (!item) return;
+        const entry = needs.get(item.id) || { item, quantity: 0 };
+        entry.quantity += Number(part.qty || 0) * (menuForecast.get(menu.id) || 0);
+        needs.set(item.id, entry);
+      }));
+      const restock = [...needs.values()].map(entry => {
+        const dailyAvailable = db.shift.active ? Number(db.shift.dailyStock[entry.item.id]?.available || 0) : 0;
+        const totalAvailable = Number(entry.item.stock || 0) + dailyAvailable;
+        const target = entry.quantity * 1.1 + Number(entry.item.min || 0);
+        return { ...entry, available: totalAvailable, suggested: Math.max(0, Math.ceil((target - totalAvailable) * 1000) / 1000) };
+      }).filter(entry => entry.quantity > 0).sort((a, b) => b.suggested * b.item.cost - a.suggested * a.item.cost);
+      return { menuForecast, total: [...menuForecast.values()].reduce((sum, value) => sum + value, 0), labels, actual, estimate, restock };
+    }
+
+    function menuPerformance() {
+      const sales = transactionSalesByMenu();
+      return db.menus.map(menu => {
+        const sold = (sales.get(menu.id) || []).reduce((sum, value) => sum + value, 0);
+        const margin = Number(menu.price || 0) - menuCost(menu);
+        return { menu, sold, margin, contribution: sold * margin };
+      }).sort((a, b) => b.contribution - a.contribution);
+    }
+
+    function estimateWasteRisk() {
+      const consumption = new Map(db.inventory.map(item => [item.id, 0]));
+      activeTransactions().forEach(transaction => {
+        const date = new Date(`${transactionDate(transaction)}T00:00:00`);
+        if ((Date.now() - date.getTime()) / 86400000 > 14 || !Array.isArray(transaction.lines)) return;
+        transaction.lines.forEach(line => {
+          const menu = menuItem(line.id);
+          (menu?.recipe || []).forEach(part => consumption.set(Number(part.inventoryId), (consumption.get(Number(part.inventoryId)) || 0) + Number(part.qty || 0) * lineQuantity(line)));
+        });
+      });
+      return db.inventory.filter(item => item.expiryDate).map(item => {
+        const days = Math.ceil((new Date(`${item.expiryDate}T23:59:59`).getTime() - Date.now()) / 86400000);
+        const perDay = (consumption.get(item.id) || 0) / 14;
+        const stock = Number(item.stock || 0) + Number(db.shift.dailyStock[item.id]?.available || 0);
+        const remaining = Math.max(0, stock - perDay * Math.max(days, 0));
+        const risk = days <= 0 && stock > 0 || days <= 3 && remaining > stock * 0.5 ? 'Tinggi' : days <= 7 && remaining > stock * 0.2 ? 'Sedang' : 'Rendah';
+        return { item, days, perDay, remaining, value: remaining * Number(item.cost || 0), risk };
+      }).sort((a, b) => b.value - a.value);
+    }
+
+    function buildAlerts() {
+      const lowStock = db.inventory.filter(item => Number(item.stock || 0) <= Number(item.min || 0)).map(item => `${item.stock <= 0 ? 'Stok habis' : 'Stok menipis'}: ${item.name} (${quantity(item.stock)} ${item.unit})`);
+      const expiry = estimateWasteRisk().filter(entry => entry.risk === 'Tinggi').map(entry => `Risiko kedaluwarsa: ${entry.item.name} (${entry.item.expiryDate})`);
+      return [...lowStock, ...expiry];
+    }
+
+    function buildDashboardPerformance(days) {
+      const labels = [], revenue = [], net = [];
+      const today = new Date(`${localDate()}T00:00:00`);
+      for (let offset = days - 1; offset >= 0; offset--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - offset);
+        const key = localDate(date);
+        const transactions = activeTransactions().filter(item => transactionDate(item) === key);
+        const costs = db.expenses.filter(item => item.date === key).reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        labels.push(date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+        revenue.push(transactions.reduce((sum, item) => sum + Number(item.total || 0), 0));
+        net.push(transactions.reduce((sum, item) => sum + Number(item.profit || 0), 0) - costs);
+      }
+      return { labels, revenue, net, hasData: revenue.some(value => value > 0) || net.some(value => value !== 0) };
+    }
+
+    function buildStockMovementChart(days) {
+      const labels = [], incoming = [], outgoing = [];
+      const midnight = new Date(`${localDate()}T00:00:00`);
+      let hasData = false;
+      for (let offset = days - 1; offset >= 0; offset--) {
+        const date = new Date(midnight);
+        date.setDate(date.getDate() - offset);
+        const key = localDate(date);
+        let inValue = 0, outValue = 0;
+        db.stockMovements.filter(entry => localDate(new Date(entry.timestamp)) === key).forEach(entry => {
+          const item = inventoryItem(entry.inventoryId);
+          if (!item) return;
+          const value = Math.abs(Number(entry.delta || 0) * Number(item.cost || 0));
+          if (entry.delta > 0) inValue += value;
+          else outValue += value;
+        });
+        labels.push(date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+        incoming.push(inValue);
+        outgoing.push(outValue);
+        if (inValue > 0 || outValue > 0) hasData = true;
+      }
+      return { labels, incoming, outgoing, hasData };
+    }
+
+    function renderLineChart(labels, series, formatter = value => money(value), emptyMessage = '') {
+      const width = 680, height = 220, left = 54, right = 12, top = 14, bottom = 28;
+      const values = series.flatMap(item => item.values).filter(Number.isFinite);
+      if (!labels.length || !values.length) return `<div class="empty">${escapeHtml(emptyMessage || 'Belum ada data pada periode ini.')}</div>`;
+      const hasNonZero = values.some(value => value !== 0);
+      const max = hasNonZero ? Math.max(...values, 0) : 1;
+      const min = hasNonZero ? Math.min(...values, 0) : -1;
+      const range = max - min || 1;
+      const x = index => left + (width - left - right) * (labels.length === 1 ? 0.5 : index / (labels.length - 1));
+      const y = value => top + (height - top - bottom) * (1 - (value - min) / range);
+      const grid = [0, .25, .5, .75, 1].map(ratio => {
+        const value = min + range * ratio;
+        return `<line x1="${left}" x2="${width - right}" y1="${y(value)}" y2="${y(value)}" stroke="#e2e8f0"/><text x="${left - 7}" y="${y(value) + 4}" text-anchor="end" class="chart-label">${escapeHtml(formatter(value))}</text>`;
+      }).join('');
+      const lines = series.map(item => {
+        const points = item.values.map((value, index) => Number.isFinite(value) ? `${x(index)},${y(value)}` : '').filter(Boolean).join(' ');
+        return `<polyline points="${points}" fill="none" stroke="${item.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }).join('');
+      const axis = labels.map((label, index) => index % Math.max(1, Math.ceil(labels.length / 7)) === 0 || index === labels.length - 1 ? `<text x="${x(index)}" y="${height - 7}" text-anchor="middle" class="chart-label">${escapeHtml(label)}</text>` : '').join('');
+      return `<div class="chart-frame"><svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Grafik performa">${grid}${lines}${axis}</svg>${emptyMessage ? `<div class="chart-empty">${escapeHtml(emptyMessage)}</div>` : ''}</div><div class="chart-legend">${series.map(item => `<span><i style="background:${item.color}"></i>${escapeHtml(item.name)}</span>`).join('')}</div>`;
+    }
+
+    function renderIntelligence() {
+      const forecast = buildForecast();
+      const performance = menuPerformance();
+      const risks = estimateWasteRisk();
+      const top = performance[0];
+      const highRisk = risks.filter(entry => entry.risk === 'Tinggi');
+      return `${pageHeading('Prediksi & AI', 'Analisis berbasis aturan dari transaksi, resep, stok, dan tanggal kedaluwarsa yang Anda masukkan.')}
+        <div class="alert-item" style="margin-bottom:16px">Simulasi analitik lokal, bukan model AI/ML atau saran profesional. Hasil prediksi bergantung pada kelengkapan data transaksi.</div>
+        <section class="grid stats">
+          ${statCard('Prediksi porsi besok', quantity(forecast.total), 'Rata-rata hari sejenis dan 7 hari terakhir', '◷', 'cyan')}
+          ${statCard('Menu kontribusi tertinggi', top ? escapeHtml(top.menu.name) : '—', top ? `${quantity(top.sold)} terjual · margin ${money(top.margin)}/porsi` : 'Belum ada riwayat penjualan', '✳', 'green')}
+          ${statCard('Bahan perlu restock', forecast.restock.filter(item => item.suggested > 0).length, 'Mengikuti kebutuhan menu besok + buffer 10%', '⚑', 'amber')}
+          ${statCard('Risiko kedaluwarsa tinggi', highRisk.length, `${money(highRisk.reduce((sum, item) => sum + item.value, 0))} estimasi nilai tersisa`, '⚠', highRisk.length ? '' : 'green')}
+        </section>
+        <section class="analytics-grid">
+          <article class="card"><div class="card-title"><div><h3>Prediksi permintaan</h3><p>Penjualan dan estimasi porsi per hari.</p></div></div>${renderLineChart(forecast.labels, [{ name: 'Aktual', color: '#1677C8', values: forecast.actual }, { name: 'Estimasi', color: '#FF9F43', values: forecast.estimate }], value => `${quantity(value)} porsi`, forecast.actual.some(value => value > 0) ? '' : 'Belum ada transaksi. Garis prediksi mulai terisi setelah penjualan tercatat.')}</article>
+          <article class="card"><div class="card-title"><div><h3>Rekomendasi restock</h3><p>Perkiraan kebutuhan menu besok dibanding stok tersedia.</p></div></div>${forecast.restock.some(item => item.suggested > 0) ? `<div class="table-wrap"><table><thead><tr><th>Bahan</th><th>Perkiraan kebutuhan</th><th>Stok total</th><th>Saran beli</th></tr></thead><tbody>${forecast.restock.filter(item => item.suggested > 0).map(entry => `<tr><td class="table-name">${escapeHtml(entry.item.name)}</td><td>${quantity(entry.quantity)} ${escapeHtml(entry.item.unit)}</td><td>${quantity(entry.available)} ${escapeHtml(entry.item.unit)}</td><td><strong>${quantity(entry.suggested)} ${escapeHtml(entry.item.unit)}</strong></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Stok saat ini cukup untuk estimasi permintaan besok.</div>'}</article>
+          <article class="card"><div class="card-title"><div><h3>Analisis risiko kedaluwarsa</h3><p>Hanya bahan yang memiliki tanggal kedaluwarsa.</p></div></div>${risks.length ? `<div class="table-wrap"><table><thead><tr><th>Bahan</th><th>Kedaluwarsa</th><th>Sisa hari</th><th>Risiko</th><th>Perkiraan nilai terancam</th></tr></thead><tbody>${risks.map(entry => `<tr><td class="table-name">${escapeHtml(entry.item.name)}</td><td>${formatDate(entry.item.expiryDate)}</td><td>${entry.days}</td><td><span class="pill ${entry.risk === 'Tinggi' ? 'red' : entry.risk === 'Sedang' ? 'amber' : 'green'}">${entry.risk}</span></td><td>${money(entry.value)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Tambahkan tanggal kedaluwarsa saat restock agar analisis risiko dapat dihitung.</div>'}</article>
+          <article class="card"><div class="card-title"><div><h3>Smart Menu Optimizer</h3><p>Stars, Ploughhorses, Puzzles, dan Dogs memakai volume serta margin rata-rata 30 hari; margin dihitung dari resep dan biaya bahan saat ini.</p></div></div>${performance.length ? `<div class="table-wrap"><table><thead><tr><th>Menu</th><th>Terjual</th><th>Margin / porsi</th><th>Kontribusi 30 hari</th><th>Kategori & saran</th></tr></thead><tbody>${performance.map(entry => {
+          const avgSold = performance.reduce((sum, row) => sum + row.sold, 0) / (performance.length || 1);
+          const avgMargin = performance.reduce((sum, row) => sum + row.margin, 0) / (performance.length || 1);
+          const popular = avgSold > 0 && entry.sold >= avgSold * 0.7, profitable = entry.margin >= avgMargin;
+          const label = avgSold === 0 ? 'Belum ada data' : popular && profitable ? 'Stars' : popular ? 'Ploughhorses' : profitable ? 'Puzzles' : 'Dogs';
+          const advice = avgSold === 0 ? 'Analisis kategori tersedia setelah transaksi pertama.' : label === 'Stars' ? 'Pertahankan kualitas dan pastikan bahan utama selalu tersedia.' : label === 'Ploughhorses' ? 'Menu laris; uji penyesuaian porsi atau harga agar margin meningkat.' : label === 'Puzzles' ? 'Margin baik; uji promosi dan posisi menu untuk menaikkan volume.' : 'Evaluasi resep, harga, atau kelanjutan menu berdasarkan permintaan.';
+          const tone = label === 'Stars' ? 'green' : label === 'Ploughhorses' ? '' : label === 'Puzzles' ? 'amber' : 'red';
+          return `<tr><td class="table-name">${escapeHtml(entry.menu.name)}</td><td>${quantity(entry.sold)}</td><td>${money(entry.margin)}</td><td>${money(entry.contribution)}</td><td><span class="pill ${tone}">${label}</span><br><small>${advice}</small></td></tr>`;
+        }).join('')}</tbody></table></div>` : '<div class="empty">Belum ada menu untuk dianalisis.</div>'}</article>
+          <article class="card" style="grid-column:1/-1"><div class="card-title"><div><h3>Asisten Bisnis (simulasi)</h3><p>Pilih pertanyaan untuk melihat ringkasan berdasarkan data aplikasi.</p></div></div>
+            <div class="tb">${['Bahan apa yang harus dibeli besok?', 'Menu apa yang paling menguntungkan?', 'Berapa laba bersih periode ini?', 'Bahan apa yang berisiko kedaluwarsa?', 'Bagaimana meningkatkan margin?', 'Berapa target untuk mencapai BEP?'].map(question => `<button class="secondary" onclick="answerBusinessQuestion('${question}')">${question}</button>`).join('')}</div>
+            <form class="filter-row" onsubmit="event.preventDefault();answerBusinessQuestion(document.getElementById('assistant-question').value)"><label class="field" style="flex:1">Tanya singkat<input id="assistant-question" maxlength="160" placeholder="Contoh: bahan apa yang perlu dibeli?"></label><button class="primary">Tanyakan</button></form>
+            ${assistantAnswer ? `<div class="assistant-answer">${assistantAnswer}</div>` : '<div class="empty">Jawaban akan muncul di sini. Asisten hanya memakai aturan dan data lokal.</div>'}
+          </article>
+        </section>`;
+    }
+
+    function answerBusinessQuestion(question) {
+      const query = String(question || '').trim().toLowerCase();
+      if (!query) return toast('Tulis atau pilih pertanyaan terlebih dahulu.', 'warning');
+      const forecast = buildForecast();
+      const performance = menuPerformance();
+      const risk = estimateWasteRisk().filter(entry => entry.risk !== 'Rendah');
+      const expenses = db.expenses.filter(item => item.date >= reportFrom && item.date <= reportTo).reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const transactions = activeTransactions().filter(item => transactionDate(item) >= reportFrom && transactionDate(item) <= reportTo);
+      const revenue = transactions.reduce((sum, item) => sum + Number(item.total || 0), 0);
+      const gross = transactions.reduce((sum, item) => sum + Number(item.profit || 0), 0);
+      const answer = query.includes('beli') || query.includes('restock')
+        ? (forecast.restock.filter(item => item.suggested > 0).slice(0, 5).map(item => `${escapeHtml(item.item.name)} ${quantity(item.suggested)} ${escapeHtml(item.item.unit)}`).join(', ') || 'Stok diperkirakan cukup untuk besok.')
+        : query.includes('kedaluwarsa') || query.includes('risiko')
+          ? (risk.map(item => `${escapeHtml(item.item.name)} (${item.risk}, ${formatDate(item.item.expiryDate)})`).join(', ') || 'Tidak ada risiko tinggi/sedang dari tanggal kedaluwarsa yang tercatat.')
+          : query.includes('bep') || query.includes('target')
+            ? calculateBreakEven(transactions, expenses)
+            : query.includes('untung') || query.includes('laba') || query.includes('keuntungan')
+              ? `Omzet ${money(revenue)}, laba kotor ${money(gross)}, biaya operasional ${money(expenses)}, estimasi laba bersih ${money(gross - expenses)} pada periode laporan.`
+              : query.includes('margin') || query.includes('profit')
+                ? (performance.filter(entry => entry.margin < 0 || entry.margin < (performance.reduce((sum, item) => sum + item.margin, 0) / (performance.length || 1))).slice(0, 4).map(entry => `${escapeHtml(entry.menu.name)} (margin ${money(entry.margin)})`).join(', ') || 'Margin menu saat ini berada di atas rata-rata resep yang terdaftar.')
+                : performance.length && performance[0].sold
+                  ? `Kontribusi terbesar 30 hari terakhir: ${escapeHtml(performance[0].menu.name)} (${money(performance[0].contribution)}). Margin per porsi tertinggi: ${escapeHtml(performance.slice().sort((a, b) => b.margin - a.margin)[0].menu.name)}.`
+                  : 'Belum ada transaksi dengan rincian menu untuk dianalisis.';
+      assistantAnswer = `<strong>${escapeHtml(question)}</strong><br>${answer}<br><small>Simulasi berbasis aturan; bukan model AI.</small>`;
+      render();
+    }
+
+    function calculateBreakEven(transactions, expenses) {
+      const quantitySold = transactions.reduce((sum, transaction) => sum + (transaction.lines || []).reduce((lineSum, line) => lineSum + lineQuantity(line), 0), 0);
+      const revenue = transactions.reduce((sum, transaction) => sum + Number(transaction.total || 0), 0);
+      const cogs = transactions.reduce((sum, transaction) => sum + Number(transaction.cogs || 0), 0);
+      const averageContribution = quantitySold ? revenue / quantitySold - cogs / quantitySold : 0;
+      const target = averageContribution > 0 ? Math.ceil(expenses / averageContribution) : 0;
+      return averageContribution > 0 ? `Biaya operasional ${money(expenses)}. Dengan kontribusi rata-rata ${money(averageContribution)} per item, estimasi titik impas periode ini sekitar ${quantity(target)} item.` : 'Data belum cukup untuk menghitung titik impas; pastikan ada transaksi dengan rincian menu dan margin positif.';
+    }
+
+    function renderStockMovementTable() {
+      const rows = db.stockMovements.slice().reverse().slice(0, 25);
+      return rows.length ? `<div class="table-wrap"><table><thead><tr><th>Waktu</th><th>Bahan</th><th>Sumber</th><th>Perubahan</th><th>Jenis</th><th>Catatan</th></tr></thead><tbody>${rows.map(entry => {
+        const item = inventoryItem(entry.inventoryId);
+        return `<tr><td>${new Date(entry.timestamp).toLocaleString('id-ID')}</td><td>${escapeHtml(item?.name || 'Bahan dihapus')}</td><td>${entry.source === 'daily' ? 'Stok harian' : 'Gudang induk'}</td><td><strong style="color:${entry.delta >= 0 ? '#047857' : '#b91c1c'}">${entry.delta > 0 ? '+' : ''}${quantity(entry.delta)} ${escapeHtml(item?.unit || '')}</strong></td><td>${escapeHtml(entry.type)}</td><td>${escapeHtml(entry.note || '—')}</td></tr>`;
+      }).join('')}</tbody></table></div>` : '<div class="empty">Pergerakan stok akan tercatat saat restock, transfer shift, dan transaksi berikutnya.</div>';
+    }
+
+    function openExpenseModal(id) {
+      const expense = db.expenses.find(item => item.id === id);
+      const current = expense || { category: 'Listrik', date: localDate(), amount: '', note: '' };
+      showModal(expense ? 'Ubah biaya operasional' : 'Tambah biaya operasional', 'Biaya dimasukkan ke laporan laba bersih, tidak mengubah stok.', `
+        <form onsubmit="event.preventDefault();saveExpense('${expense ? expense.id : ''}')"><div class="form-grid">
+          <label class="field">Kategori<select id="expense-category">${expenseCategories.map(category => `<option ${current.category === category ? 'selected' : ''}>${category}</option>`).join('')}</select></label>
+          <label class="field">Jumlah (Rp)<input id="expense-amount" type="number" min="1" step="1" value="${escapeHtml(current.amount)}" required></label>
+          <label class="field">Tanggal<input id="expense-date" type="date" value="${escapeHtml(current.date)}" required></label>
+          <label class="field">Catatan<input id="expense-note" maxlength="120" value="${escapeHtml(current.note || '')}" placeholder="Contoh: tagihan bulan ini"></label>
+        </div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan biaya</button></div></form>`);
+    }
+
+    function saveExpense(id) {
+      const amount = Number(document.getElementById('expense-amount').value);
+      const date = document.getElementById('expense-date').value;
+      if (!Number.isFinite(amount) || amount <= 0 || !date) return toast('Jumlah dan tanggal biaya harus valid.', 'error');
+      const values = { category: document.getElementById('expense-category').value, amount: round2(amount), date, note: document.getElementById('expense-note').value.trim() };
+      const existing = db.expenses.find(item => item.id === id);
+      if (existing) Object.assign(existing, values);
+      else db.expenses.unshift({ id: `EXP-${Date.now()}`, ...values, timestamp: new Date().toISOString() });
+      closeModal();
+      saveDB();
+      render();
+      toast('Biaya operasional tersimpan.', 'success');
+    }
+
+    function deleteExpense(id) {
+      if (!confirm('Hapus catatan biaya ini?')) return;
+      db.expenses = db.expenses.filter(item => item.id !== id);
+      saveDB();
+      render();
+      toast('Biaya dihapus.', 'success');
+    }
+
+    function exportCsv(filename, rows) {
+      const content = '\ufeff' + rows.map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function renderReports() {
+      const transactions = activeTransactions().filter(item => transactionDate(item) >= reportFrom && transactionDate(item) <= reportTo);
+      const simulatedCount = transactions.filter(item => item.isSimulated).length;
+      const revenue = transactions.reduce((sum, item) => sum + item.total, 0);
+      const cogs = transactions.reduce((sum, item) => sum + item.cogs, 0);
+      const grossProfit = transactions.reduce((sum, item) => sum + item.profit, 0);
+      const expenses = db.expenses.filter(item => item.date >= reportFrom && item.date <= reportTo);
+      const expenseTotal = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+      const profit = grossProfit - expenseTotal;
+      const daily = transactions.filter(item => item.cashier === 'daily');
+      const retail = transactions.filter(item => item.cashier === 'retail');
+      const transactionRows = db.transactions.filter(item => transactionDate(item) >= reportFrom && transactionDate(item) <= reportTo).map(item => `<tr><td class="table-name">${escapeHtml(item.id)}</td><td>${escapeHtml(transactionDate(item))} · ${escapeHtml(item.time || '—')}</td><td><span class="pill ${item.cashier === 'retail' ? '' : 'green'}">${item.cashier === 'retail' ? 'Kasir 2 · Sembako' : 'Kasir 1 · Harian'}</span><br><small>${escapeHtml(item.paymentMethod || 'Tunai')}</small></td><td>${item.isSimulated ? '<span class="pill amber">SIMULASI</span>' : '<span class="pill green">Aktual</span>'}</td><td>${escapeHtml(item.items)}</td><td>${money(item.total)}</td><td>${money(item.cogs)}</td><td><strong>${money(item.profit)}</strong></td><td>${item.cancelled ? '<span class="pill red">Dibatalkan</span>' : '<span class="pill green">Selesai</span>'}</td><td><button class="ghost" onclick="showTransactionReceipt('${escapeHtml(item.id)}')">Struk</button> ${!item.isSimulated && !item.cancelled && item.consumption?.length ? `<button class="danger" onclick="cancelTransaction('${escapeHtml(item.id)}')">Batalkan</button>` : ''}</td></tr>`).join('');
+      const historyRows = db.shiftHistory.map(item => `<div class="row"><div class="row-main"><strong>${escapeHtml(item.id)} · ${escapeHtml(item.date)}</strong><small>${escapeHtml(item.startedAt)}–${escapeHtml(item.closedAt)} · ${item.transactions} transaksi</small></div><div class="row-side"><strong>${money(item.revenue)}</strong><small>omzet kasir harian</small></div></div>`).join('');
+      const labels = [];
+      const revenueSeries = [];
+      const netSeries = [];
+      const rangeStart = new Date(`${reportFrom}T00:00:00`);
+      const rangeEnd = new Date(`${reportTo}T00:00:00`);
+      if (rangeEnd >= rangeStart) {
+        for (let cursor = new Date(rangeStart); cursor <= rangeEnd && labels.length < 120; cursor.setDate(cursor.getDate() + 1)) {
+          const date = localDate(cursor);
+          const dayTransactions = transactions.filter(item => transactionDate(item) === date);
+          const dayExpenses = expenses.filter(item => item.date === date).reduce((sum, item) => sum + item.amount, 0);
+          labels.push(cursor.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+          revenueSeries.push(dayTransactions.reduce((sum, item) => sum + item.total, 0));
+          netSeries.push(dayTransactions.reduce((sum, item) => sum + item.profit, 0) - dayExpenses);
+        }
+      }
+      const purchases = db.purchases.filter(item => localDate(new Date(item.timestamp)) >= reportFrom && localDate(new Date(item.timestamp)) <= reportTo).reduce((sum, item) => sum + Number(item.total || 0), 0);
+      const netCashFlow = revenue - purchases - expenseTotal;
+      const expensesRows = expenses.slice().sort((a, b) => b.date.localeCompare(a.date)).map(item => `<tr><td>${escapeHtml(item.date)}</td><td>${escapeHtml(item.category)}</td><td>${escapeHtml(item.note || '—')}</td><td>${money(item.amount)}</td><td><button class="ghost" onclick="openExpenseModal('${escapeHtml(item.id)}')">Ubah</button> <button class="danger" onclick="deleteExpense('${escapeHtml(item.id)}')">Hapus</button></td></tr>`).join('');
+      const be = calculateBreakEven(transactions, expenseTotal);
+      return `${pageHeading('Laporan Keuangan', 'Ringkasan transaksi aktual dan simulasi berlabel, HPP resep, biaya operasional, dan riwayat shift.', '<button class="primary" onclick="openExpenseModal()">＋ &nbsp;Tambah Biaya</button>')}
+        <article class="card" style="margin-bottom:16px"><div class="filter-row">
+          <label class="field">Dari tanggal<input type="date" value="${escapeHtml(reportFrom)}" onchange="reportFrom=this.value;render()"></label>
+          <label class="field">Sampai tanggal<input type="date" value="${escapeHtml(reportTo)}" onchange="reportTo=this.value;render()"></label>
+          <button class="secondary" onclick="reportFrom=localDate(new Date(Date.now()-6*86400000));reportTo=localDate();render()">7 hari</button>
+          <button class="secondary" onclick="reportFrom=localDate(new Date(Date.now()-29*86400000));reportTo=localDate();render()">30 hari</button>
+          <button class="secondary" onclick="reportFrom=localDate(new Date(Date.now()-89*86400000));reportTo=localDate();render()">90 hari</button>
+          <button class="secondary" onclick="exportTransactionsCsv()">CSV Transaksi</button>
+          <button class="secondary" onclick="exportSummaryCsv()">CSV Ringkasan</button>
+          <button class="secondary" onclick="window.print()">Cetak</button>
+        </div>
+        <section class="grid stats report-summary">
+          ${statCard('Total omzet', money(revenue), `${transactions.length} transaksi · ${simulatedCount} simulasi`, '↗', 'cyan')}
+          ${statCard('HPP resep terjual', money(cogs), 'Biaya bahan berdasarkan resep', '◈', 'amber')}
+          ${statCard('Laba kotor', money(grossProfit), 'Omzet dikurangi HPP', '⌁', 'green')}
+          ${statCard('Laba bersih', money(profit), `Setelah biaya ${money(expenseTotal)}`, '✓', profit >= 0 ? 'green' : 'amber')}
+        </section>
+        <div class="row"><div class="row-main"><strong>Arus kas simulasi</strong><small>Termasuk ${simulatedCount} transaksi contoh yang ditandai SIMULASI. Kas masuk penjualan ${money(revenue)} − pembelian stok ${money(purchases)} − biaya operasional ${money(expenseTotal)} · modal awal shift tidak dihitung sebagai pendapatan.</small></div><div class="row-side"><strong>${money(netCashFlow)}</strong><small>Kas masuk bersih · ${daily.length} transaksi harian / ${retail.length} eceran</small></div></div>
+        <div class="row"><div class="row-main"><strong>Titik impas</strong><small>Pembelian stok adalah arus kas keluar, bukan HPP sebelum bahan digunakan.</small></div><div class="row-side" style="flex:0 1 300px;min-width:0;overflow-wrap:anywhere;white-space:normal"><strong style="white-space:normal;overflow-wrap:anywhere">${escapeHtml(be)}</strong><small>Estimasi berdasarkan transaksi aktif dan biaya periode</small></div></div>
+        </article>
+        <section class="analytics-grid" style="margin-bottom:16px">
+          <article class="card"><div class="card-title"><div><h3>Omzet & laba bersih</h3><p>Ringkasan harian dalam rentang tanggal terpilih.</p></div></div>${renderLineChart(labels, [{ name: 'Omzet', color: '#1677C8', values: revenueSeries }, { name: 'Laba bersih', color: '#059669', values: netSeries }])}</article>
+          <article class="card"><div class="card-title"><div><h3>Break-Even Point</h3><p>Biaya operasional dibagi kontribusi rata-rata per item.</p></div></div><div class="assistant-answer">${escapeHtml(be)}<br><br><strong>Catatan:</strong> pembelian stok dicatat sebagai arus kas keluar dan tidak otomatis menjadi biaya HPP sampai bahan digunakan.</div></article>
+        </section>
+        <article class="card" style="margin-bottom:16px"><div class="card-title"><div><h3>Biaya operasional</h3><p>Catatan biaya yang mengurangi laba bersih.</p></div><button class="secondary" onclick="openExpenseModal()">＋ Tambah biaya</button></div>
+          ${expensesRows ? `<div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Kategori</th><th>Catatan</th><th>Jumlah</th><th>Aksi</th></tr></thead><tbody>${expensesRows}</tbody></table></div>` : '<div class="empty">Belum ada biaya operasional pada periode ini.</div>'}
+        </article>
+        <article class="card" style="margin-bottom:16px"><div class="card-title"><div><h3>Rincian transaksi</h3><p>Riwayat kedua kasir. Transaksi batal tidak masuk hitungan omzet.</p></div></div>
+          ${transactionRows ? `<div class="table-wrap"><table><thead><tr><th>ID transaksi</th><th>Waktu</th><th>Kasir</th><th>Jenis data</th><th>Item</th><th>Omzet</th><th>HPP</th><th>Laba kotor</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${transactionRows}</tbody></table></div>` : '<div class="empty">Belum ada transaksi pada rentang tanggal ini.</div>'}
+        </article>
+        <article class="card"><div class="card-title"><div><h3>Riwayat shift</h3><p>Rekap sesi kerja harian yang telah ditutup.</p></div></div>${historyRows ? `<div class="list">${historyRows}</div>` : '<div class="empty">Riwayat shift yang selesai akan tampil di sini.</div>'}</article>`;
+    }
+
+    function exportTransactionsCsv() {
+      const transactions = db.transactions.filter(item => transactionDate(item) >= reportFrom && transactionDate(item) <= reportTo);
+      exportCsv('stocklogic_transaksi.csv', [['ID', 'Tanggal', 'Kasir', 'Jenis data', 'Item', 'Diskon', 'Omzet', 'HPP', 'Laba kotor', 'Metode pembayaran', 'Status'], ...transactions.map(item => [item.id, transactionDate(item), item.cashier, item.isSimulated ? 'Simulasi' : 'Aktual', item.items, item.discount || 0, item.total, item.cogs, item.profit, item.paymentMethod || 'Tunai', item.cancelled ? 'Dibatalkan' : 'Selesai'])]);
+    }
+
+    function exportSummaryCsv() {
+      exportCsv('stocklogic_ringkasan.csv', [['Tanggal', 'Omzet', 'HPP', 'Pembelian stok', 'Biaya operasional', 'Laba bersih', 'Arus kas bersih'], ...Array.from({ length: Math.min(120, Math.max(0, (new Date(`${reportTo}T00:00:00`) - new Date(`${reportFrom}T00:00:00`)) / 86400000 + 1)) }, (_, index) => {
+        const date = new Date(`${reportFrom}T00:00:00`);
+        date.setDate(date.getDate() + index);
+        const key = localDate(date);
+        const tx = activeTransactions().filter(item => transactionDate(item) === key);
+        const cost = db.expenses.filter(item => item.date === key).reduce((sum, item) => sum + item.amount, 0);
+        const revenue = tx.reduce((sum, item) => sum + item.total, 0);
+        const hpp = tx.reduce((sum, item) => sum + item.cogs, 0);
+        const purchases = db.purchases.filter(item => localDate(new Date(item.timestamp)) === key).reduce((sum, item) => sum + Number(item.total || 0), 0);
+        return [key, revenue, hpp, purchases, cost, revenue - hpp - cost, revenue - purchases - cost];
+      })]);
+    }
+
+    function cancelTransaction(id) {
+      const transaction = db.transactions.find(item => item.id === id);
+      if (transaction?.isSimulated) return toast('Transaksi simulasi tidak mengubah stok dan tidak dapat dibatalkan sebagai penjualan nyata.', 'warning');
+      if (!transaction || transaction.cancelled || !Array.isArray(transaction.consumption) || !transaction.consumption.length) return toast('Transaksi ini tidak memiliki catatan pemakaian stok yang dapat dibalik.', 'error');
+      if (!confirm(`Batalkan transaksi ${id}? Nilai penjualan dikeluarkan dari laporan dan stok dikembalikan.`)) return;
+      const before = clone(db);
+      transaction.consumption.forEach(part => {
+        const item = inventoryItem(part.inventoryId);
+        if (!item) return;
+        const qty = Number(part.qty || 0);
+        const returnToDaily = part.source === 'daily' && db.shift.active && db.shift.id === transaction.shiftId && db.shift.dailyStock[item.id];
+        if (returnToDaily) {
+          db.shift.dailyStock[item.id].available = round3(db.shift.dailyStock[item.id].available + qty);
+          recordStockMovement(item, 'daily', qty, 'Pembatalan transaksi', id);
+        } else {
+          item.stock = round3(item.stock + qty);
+          recordStockMovement(item, 'warehouse', qty, 'Pembatalan transaksi', `${id} · dikembalikan ke Gudang Induk`);
+        }
+      });
+      (transaction.lines || []).forEach(line => {
+        const menu = menuItem(line.id);
+        if (menu) menu.sold = Math.max(0, Number(menu.sold || 0) - lineQuantity(line));
+      });
+      transaction.cancelled = true;
+      transaction.cancelledAt = new Date().toISOString();
+      if (!saveDB()) {
+        db = before;
+        render();
+        return;
+      }
+      render();
+      toast(`Transaksi ${id} dibatalkan dan stok dikembalikan.`, 'success');
+    }
+
+    function showTransactionReceipt(id) {
+      const transaction = db.transactions.find(item => item.id === id);
+      if (!transaction) return toast('Transaksi tidak ditemukan.', 'error');
+      const payment = transaction.paymentMethod || 'Tunai';
+      showModal(`Struk ${escapeHtml(transaction.id)}`, transaction.isSimulated ? 'Contoh transaksi simulasi; bukan penjualan aktual dan tidak mengubah stok.' : 'Bukti transaksi Warung Makan Nusantara.', `
+        <div class="receipt-print">
+          ${transaction.isSimulated ? '<div class="pill amber" style="display:block;text-align:center;margin-bottom:10px">TRANSAKSI SIMULASI · BUKAN PENJUALAN AKTUAL</div>' : ''}
+          <div style="text-align:center;padding-bottom:12px;border-bottom:1px dashed var(--line)"><strong>${escapeHtml(db.shop.name)}</strong><div>${escapeHtml(db.shop.address || 'Warung Makan Nusantara')}</div><small>${escapeHtml(db.shop.phone || '')}</small></div>
+          <div class="row"><span>No. transaksi</span><strong>${escapeHtml(transaction.id)}</strong></div>
+          <div class="row"><span>Waktu</span><strong>${escapeHtml(transaction.date || transactionDate(transaction))} · ${escapeHtml(transaction.time || '—')}</strong></div>
+          <div class="row"><span>Kasir</span><strong>${transaction.cashier === 'retail' ? 'Sembako & eceran' : 'Jualan harian'}</strong></div>
+          <div class="row"><span>Pembayaran</span><strong>${escapeHtml(payment)}${payment.includes('simulasi') ? ' · konfirmasi manual' : ''}</strong></div>
+          <div style="margin:10px 0;border-top:1px dashed var(--line)">${(transaction.lines || []).map(line => `<div class="row"><span>${escapeHtml(line.name)} × ${quantity(line.qty)}</span><strong>${money(Number(line.price) * Number(line.qty))}</strong></div>`).join('')}</div>
+          <div class="row"><span>Subtotal</span><strong>${money((transaction.lines || []).reduce((sum, line) => sum + Number(line.price) * Number(line.qty), 0))}</strong></div>
+          <div class="row"><span>Diskon</span><strong>− ${money(transaction.discount || 0)}</strong></div>
+          <div class="cart-total"><span>Total</span><span>${money(transaction.total)}</span></div>
+          ${payment === 'Tunai' && transaction.cashReceived != null ? `<div class="row"><span>Tunai diterima</span><strong>${money(transaction.cashReceived)}</strong></div><div class="row"><span>Kembalian</span><strong>${money(transaction.change || 0)}</strong></div>` : ''}
+          ${transaction.cancelled ? '<p class="pill red">TRANSAKSI DIBATALKAN</p>' : ''}
+          <p style="text-align:center;color:var(--muted);font-size:10px">Terima kasih telah berkunjung.<br>STOCKLOGIC · Prototype simulasi</p>
+        </div>
+        <div class="modal-actions"><button class="secondary" onclick="closeModal()">Tutup</button><button class="primary" onclick="window.print()">Cetak struk</button></div>`);
+    }
+
+    function openJournalModal(id) {
+      const note = db.notes.find(item => item.id === id);
+      const current = note || { title: '', body: '', category: 'Operasional', priority: 'Sedang', done: false };
+      showModal(note ? 'Ubah catatan' : 'Catatan baru', 'Simpan pengingat, temuan stok, atau tindak lanjut usaha.', `
+        <form onsubmit="event.preventDefault();saveJournalNote('${note ? note.id : ''}')"><div class="form-grid">
+          <label class="field">Judul<input id="journal-title" maxlength="100" value="${escapeHtml(current.title)}" required></label>
+          <label class="field">Kategori<select id="journal-category">${['Operasional', 'Stok', 'Harga', 'Penjualan', 'Keuangan'].map(category => `<option ${current.category === category ? 'selected' : ''}>${category}</option>`).join('')}</select></label>
+          <label class="field">Prioritas<select id="journal-priority">${['Rendah', 'Sedang', 'Tinggi'].map(priority => `<option ${current.priority === priority ? 'selected' : ''}>${priority}</option>`).join('')}</select></label>
+          <label class="field">Catatan<textarea id="journal-body" rows="4" maxlength="600">${escapeHtml(current.body || '')}</textarea></label>
+        </div><div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan catatan</button></div></form>`);
+    }
+
+    function saveJournalNote(id) {
+      const title = document.getElementById('journal-title').value.trim();
+      if (!title) return toast('Judul catatan wajib diisi.', 'warning');
+      const values = { title, body: document.getElementById('journal-body').value.trim(), category: document.getElementById('journal-category').value, priority: document.getElementById('journal-priority').value };
+      const note = db.notes.find(item => item.id === id);
+      if (note) Object.assign(note, values);
+      else db.notes.unshift({ id: `NOTE-${Date.now()}`, ...values, done: false, timestamp: new Date().toISOString() });
+      closeModal();
+      saveDB();
+      render();
+      toast('Catatan operasional tersimpan.', 'success');
+    }
+
+    function toggleJournalNote(id) {
+      const note = db.notes.find(item => item.id === id);
+      if (!note) return;
+      note.done = !note.done;
+      saveDB();
+      render();
+    }
+
+    function deleteJournalNote(id) {
+      if (!confirm('Hapus catatan ini?')) return;
+      db.notes = db.notes.filter(item => item.id !== id);
+      saveDB();
+      render();
+    }
+
+    function renderJournal() {
+      const notes = db.notes.slice().sort((a, b) => Number(a.done) - Number(b.done) || String(b.timestamp).localeCompare(String(a.timestamp)));
+      return `${pageHeading('Catatan Operasional', 'Jurnal untuk temuan, pengingat, dan tindak lanjut harian.', '<button class="primary" onclick="openJournalModal()">＋ &nbsp;Catatan Baru</button>')}
+        <div class="card"><div class="card-title"><div><h3>Daftar catatan</h3><p>${notes.filter(note => !note.done).length} belum selesai · ${notes.length} total</p></div><button class="secondary" onclick="db.notifications=!db.notifications;saveDB();render()">${db.notifications ? 'Matikan' : 'Aktifkan'} notifikasi</button></div>
+          ${notes.length ? `<div class="list">${notes.map(note => `<div class="journal-item ${note.done ? 'done' : ''}"><input type="checkbox" aria-label="Tandai selesai" ${note.done ? 'checked' : ''} onchange="toggleJournalNote('${escapeHtml(note.id)}')"><div><strong>${escapeHtml(note.title)}</strong> <span class="pill ${note.priority === 'Tinggi' ? 'red' : note.priority === 'Sedang' ? 'amber' : 'green'}">${escapeHtml(note.priority)}</span> <span class="pill">${escapeHtml(note.category)}</span><p>${escapeHtml(note.body || 'Tanpa keterangan.')}</p><small>${formatDate(String(note.timestamp || '').slice(0, 10))}</small></div><div class="table-actions"><button class="ghost" onclick="openJournalModal('${escapeHtml(note.id)}')">Ubah</button><button class="danger" onclick="deleteJournalNote('${escapeHtml(note.id)}')">Hapus</button></div></div>`).join('')}</div>` : '<div class="empty">Belum ada catatan. Tambahkan catatan operasional pertama.</div>'}
+        </div>`;
+    }
+
+    function saveStoreProfile() {
+      const fields = ['name', 'owner', 'address', 'phone', 'category', 'hours'];
+      const values = Object.fromEntries(fields.map(field => [field, document.getElementById(`shop-${field}`).value.trim()]));
+      if (!values.name || !values.owner) return toast('Nama usaha dan pemilik wajib diisi.', 'error');
+      db.shop = values;
+      saveDB();
+      render();
+      toast('Profil usaha tersimpan.', 'success');
+    }
+
+    function exportBackup() {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'stocklogic_backup.json';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function validateBackupData(data) {
+      if (!data || typeof data !== 'object' || Array.isArray(data) || data.version !== 3) return 'Format backup STOCKLOGIC tidak dikenali.';
+      for (const key of ['inventory', 'menus']) {
+        if (!Array.isArray(data[key])) return `Bagian ${key} pada backup tidak valid.`;
+      }
+      for (const key of ['transactions', 'shiftHistory', 'expenses', 'notes', 'stockMovements', 'purchases']) {
+        if (data[key] !== undefined && !Array.isArray(data[key])) return `Daftar ${key} pada backup tidak valid.`;
+      }
+      const inventoryIds = new Set();
+      for (const item of data.inventory) {
+        const id = Number(item?.id);
+        if (!Number.isFinite(id) || inventoryIds.has(id) || !String(item.name || '').trim() || !String(item.unit || '').trim()) return 'ID, nama, atau satuan bahan pada backup tidak valid.';
+        if ([item.stock, item.min, item.cost].some(value => !Number.isFinite(Number(value)) || Number(value) < 0)) return `Nilai stok atau biaya bahan ${item.name} tidak valid.`;
+        inventoryIds.add(id);
+      }
+      const menuIds = new Set();
+      for (const menu of data.menus) {
+        const id = Number(menu?.id);
+        if (!Number.isFinite(id) || menuIds.has(id) || !String(menu.name || '').trim() || !Number.isFinite(Number(menu.price)) || Number(menu.price) <= 0 || !Array.isArray(menu.recipe)) return 'ID, harga, atau resep menu pada backup tidak valid.';
+        menuIds.add(id);
+        for (const part of menu.recipe) {
+          if (!inventoryIds.has(Number(part.inventoryId)) || !['daily', 'warehouse'].includes(part.source) || !Number.isFinite(Number(part.qty)) || Number(part.qty) <= 0) return `Resep menu ${menu.name} memiliki referensi bahan atau takaran tidak valid.`;
+        }
+      }
+      for (const transaction of data.transactions || []) {
+        if (!transaction || !String(transaction.id || '').trim() || !Number.isFinite(Number(transaction.total)) || !Number.isFinite(Number(transaction.cogs))) return 'Transaksi pada backup memiliki ID atau nilai keuangan tidak valid.';
+        if (transaction.lines !== undefined && (!Array.isArray(transaction.lines) || transaction.lines.some(line => !menuIds.has(Number(line.id)) || !Number.isInteger(Number(line.qty)) || Number(line.qty) <= 0 || !Number.isFinite(Number(line.price))))) return `Rincian transaksi ${transaction.id} tidak valid.`;
+        if (transaction.consumption !== undefined && (!Array.isArray(transaction.consumption) || transaction.consumption.some(part => !inventoryIds.has(Number(part.inventoryId)) || !['daily', 'warehouse'].includes(part.source) || !Number.isFinite(Number(part.qty)) || Number(part.qty) <= 0))) return `Pemakaian stok transaksi ${transaction.id} tidak valid.`;
+      }
+      for (const purchase of data.purchases || []) {
+        if (!inventoryIds.has(Number(purchase.inventoryId)) || !Number.isFinite(Number(purchase.quantity)) || Number(purchase.quantity) <= 0 || !Number.isFinite(Number(purchase.unitCost)) || Number(purchase.unitCost) < 0) return 'Riwayat pembelian pada backup memiliki referensi atau nilai tidak valid.';
+      }
+      for (const expense of data.expenses || []) {
+        if (!Number.isFinite(Number(expense.amount)) || Number(expense.amount) < 0 || !/^\d{4}-\d{2}-\d{2}$/.test(String(expense.date || ''))) return 'Catatan biaya pada backup memiliki tanggal atau jumlah tidak valid.';
+      }
+      const shift = data.shift || {};
+      if (shift.dailyStock !== undefined && (!shift.dailyStock || typeof shift.dailyStock !== 'object' || Array.isArray(shift.dailyStock) || Object.entries(shift.dailyStock).some(([id, stock]) => !inventoryIds.has(Number(id)) || !stock || [stock.opening, stock.added, stock.available].some(value => !Number.isFinite(Number(value)) || Number(value) < 0)))) return 'Alokasi stok shift pada backup tidak valid.';
+      if (data.shop !== undefined && (!data.shop || typeof data.shop !== 'object' || Array.isArray(data.shop))) return 'Profil usaha pada backup tidak valid.';
+      return '';
+    }
+
+    function importBackup(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        event.target.value = '';
+        return toast('File backup maksimal 5 MB.', 'warning');
+      }
+      const reader = new FileReader();
+      reader.onerror = () => toast('File backup gagal dibaca.', 'error');
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const validationError = validateBackupData(parsed);
+          if (validationError) throw new Error(validationError);
+          if (!confirm('Pulihkan backup ini? Data pada browser akan diganti.')) return;
+          const previous = db;
+          db = { ...clone(DEFAULT_DATA), ...parsed, inventory: expandInventoryCatalog(parsed.inventory), shift: { ...clone(DEFAULT_DATA.shift), ...(parsed.shift || {}) }, expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [], notes: Array.isArray(parsed.notes) ? parsed.notes : [], stockMovements: Array.isArray(parsed.stockMovements) ? parsed.stockMovements : [], purchases: Array.isArray(parsed.purchases) ? parsed.purchases : [], shop: { ...clone(DEFAULT_DATA.shop), ...(parsed.shop || {}) } };
+          if (!saveDB()) {
+            db = previous;
+            return;
+          }
+          cart = { daily: [], retail: [] };
+          posSettings = { daily: { discount: 0, payment: 'Tunai', cashReceived: 0 }, retail: { discount: 0, payment: 'Tunai', cashReceived: 0 } };
+          render();
+          toast('Backup berhasil dipulihkan.', 'success');
+        } catch (error) {
+          console.error('Gagal memulihkan backup STOCKLOGIC:', error);
+          toast(error.message === 'Format backup tidak dikenali.' ? error.message : 'Backup rusak atau tidak dapat dipulihkan.', 'error');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderSettings() {
+      const shop = db.shop || DEFAULT_DATA.shop;
+      return `${pageHeading('Pengaturan Toko', 'Kelola profil, notifikasi, dan salinan data lokal.')}
+        <section class="grid two-col">
+          <article class="card"><div class="card-title"><div><h3>Profil usaha</h3><p>Informasi ditampilkan pada navigasi aplikasi.</p></div></div>
+            <div class="form-grid">
+              <label class="field">Nama usaha<input id="shop-name" maxlength="80" value="${escapeHtml(shop.name)}" required></label>
+              <label class="field">Nama pemilik<input id="shop-owner" maxlength="80" value="${escapeHtml(shop.owner)}" required></label>
+              <label class="field">Alamat<input id="shop-address" maxlength="140" value="${escapeHtml(shop.address)}"></label>
+              <label class="field">Nomor telepon<input id="shop-phone" maxlength="30" value="${escapeHtml(shop.phone)}"></label>
+              <label class="field">Kategori usaha<input id="shop-category" maxlength="60" value="${escapeHtml(shop.category)}"></label>
+              <label class="field">Jam operasional<input id="shop-hours" maxlength="60" value="${escapeHtml(shop.hours)}"></label>
+            </div><div style="margin-top:14px"><button class="primary" onclick="saveStoreProfile()">Simpan profil</button></div>
+          </article>
+          <article class="card"><div class="card-title"><div><h3>Notifikasi & data</h3><p>Data aplikasi tersimpan pada browser ini.</p></div></div>
+            <label class="row"><span class="row-main"><strong>Notifikasi stok dan kedaluwarsa</strong><small>Tampilkan peringatan pada ringkasan usaha.</small></span><input type="checkbox" ${db.notifications ? 'checked' : ''} onchange="db.notifications=this.checked;saveDB();render()"></label>
+            <div class="list" style="margin-top:12px">
+              <div class="row"><div class="row-main"><strong>Ekspor backup JSON</strong><small>Salin profil, stok, transaksi, biaya, dan jurnal.</small></div><button class="secondary" onclick="exportBackup()">Unduh JSON</button></div>
+              <div class="row"><div class="row-main"><strong>Impor backup JSON</strong><small>Mengganti data lokal dengan backup STOCKLOGIC v3.</small></div><label class="secondary" style="cursor:pointer">Pilih file<input type="file" accept="application/json,.json" onchange="importBackup(event)" hidden></label></div>
+              <div class="row"><div class="row-main"><strong>Reset data contoh</strong><small>Menghapus perubahan pada browser ini.</small></div><button class="danger" onclick="confirmReset()">Reset</button></div>
+            </div>
+            <p class="section-note" style="margin-top:12px">Jangan bagikan file backup kepada pihak yang tidak berwenang. Data tidak disinkronkan ke server.</p>
+          </article>
+        </section>`;
+    }
+
+    function renderGuide() {
+      const steps = [
+        ['01', 'Mulai shift', 'Buka Ringkasan Usaha, pilih START Shift, masukkan modal awal, lalu alokasikan jumlah bahan dari Gudang Induk. Transfer ini tercatat sebagai pemindahan stok, bukan penjualan.'],
+        ['02', 'Layani pesanan harian', 'Buka Kasir 1 untuk menu makanan dan minuman. Checkout memotong Stok Jualan Harian sesuai takaran resep dan mencatat omzet, HPP, serta laba kotor.'],
+        ['03', 'Layani sembako & eceran', 'Buka Kasir 2. Produk sembako memotong Gudang Induk secara langsung dan tetap dapat dijual saat shift harian tutup.'],
+        ['04', 'Tambah stok saat darurat', 'Di halaman Stok Jualan Harian, tambah bahan dari Gudang Induk. Riwayat mencatat saldo sebelum + jumlah tambahan = saldo sesudah berikut nilai modalnya.'],
+        ['05', 'Daftarkan menu dan resep', 'Pilih Daftar Menu & Resep → Tambah Menu Baru. Setiap menu wajib memiliki satu atau lebih bahan, sumber stok, dan takaran per porsi.'],
+        ['06', 'Akhiri shift', 'Sisa stok shift yang belum terpakai dikembalikan ke Gudang Induk. Riwayat mencatat transfer, pemakaian, dan stok yang dikembalikan.'],
+        ['07', 'Gunakan analisis', 'Prediksi & AI menghitung perkiraan permintaan, saran restock, margin menu, dan risiko kedaluwarsa dari data transaksi serta tanggal kedaluwarsa yang dicatat. Hasilnya simulasi berbasis aturan.'],
+        ['08', 'Tutup buku dan simpan data', 'Catat biaya operasional di Laporan Keuangan untuk melihat laba bersih dan BEP. Gunakan Catatan Operasional untuk pengingat, lalu Pengaturan Toko untuk ekspor atau pemulihan backup JSON.']
+      ];
+      return `${pageHeading('Panduan Operasional', 'Alur kerja singkat untuk menjaga transaksi dan stok tetap akurat.')}
+        <section class="grid two-col"><article class="card"><div class="list">${steps.map(([number, title, description]) => `<div class="row" style="align-items:flex-start"><span class="pill" style="font-size:12px">${number}</span><div class="row-main"><strong>${title}</strong><small style="display:block;margin-top:4px;line-height:1.6">${description}</small></div></div>`).join('')}</div></article>
+        <article class="card"><div class="card-title"><div><h3>Prinsip STOCKLOGIC</h3><p>Dua kasir, dua sumber stok, satu catatan usaha.</p></div></div><div class="list">
+          <div class="row"><div class="row-main"><strong>Kasir 1</strong><small>Menu harian → stok alokasi shift</small></div><span class="pill green">Harian</span></div>
+          <div class="row"><div class="row-main"><strong>Kasir 2</strong><small>Sembako / eceran → Gudang Induk</small></div><span class="pill">Eceran</span></div>
+          <div class="row"><div class="row-main"><strong>Data lokal</strong><small>Disimpan pada browser perangkat ini</small></div><span class="pill amber">localStorage</span></div>
+        </div><p style="margin:14px 0 0;color:var(--muted);font-size:10px">Aplikasi ini berjalan di browser tanpa server. Data berada di perangkat/browser yang digunakan; ekspor atau sinkronisasi antarperangkat belum tersedia.</p></article></section>
+        <article class="card" style="margin-top:16px"><div class="card-title"><div><h3>Lima skenario demo</h3><p>Data simulasi historis mencakup transaksi 90 hari terakhir dan ditandai pada dashboard/laporan; gunakan tombol untuk membuka modul awal setiap skenario.</p></div></div>
+          <div class="grid two-col">
+            <div class="row"><div class="row-main"><strong>1 · Penjualan terintegrasi</strong><small>Aktifkan shift, alokasikan bahan resep, lalu jual 2 Ayam Penyet dan 1 Es Teh Manis. Konfirmasi pembayaran dan cek struk, stok, dashboard, serta laporan.</small></div><button class="secondary" onclick="switchTab('pos');if(!db.shift.active)openStartShiftModal()">Mulai</button></div>
+            <div class="row"><div class="row-main"><strong>2 · Pembelian bahan</strong><small>Restock 10 kg Beras di Gudang Induk. Periksa stok, nilai rata-rata tertimbang, riwayat pembelian, dan arus kas.</small></div><button class="secondary" onclick="switchTab('warehouse')">Buka gudang</button></div>
+            <div class="row"><div class="row-main"><strong>3 · Peringatan stok</strong><small>Cabai Merah pada data demo berada di bawah minimum. Lihat notifikasi lalu restock sesuai kebutuhan.</small></div><button class="secondary" onclick="switchTab('dashboard')">Lihat peringatan</button></div>
+            <div class="row"><div class="row-main"><strong>4 · Delta & Sigma</strong><small>Bandingkan menu berdasarkan volume dan margin; estimasi permintaan dan restock menggunakan aturan statistik yang ditampilkan.</small></div><button class="secondary" onclick="switchTab('intelligence')">Buka analisis</button></div>
+            <div class="row"><div class="row-main"><strong>5 · Laporan bulanan</strong><small>Periksa omzet, HPP, laba kotor/bersih, pembelian, biaya, arus kas, lalu ekspor ringkasan atau transaksi ke CSV.</small></div><button class="secondary" onclick="reportFrom=localDate(new Date(Date.now()-29*86400000));reportTo=localDate();switchTab('reports')">Buka laporan</button></div>
+          </div>
+          <p class="section-note" style="margin:12px 0 0">QRIS dan transfer bank hanya dicatat sebagai simulasi dengan konfirmasi kasir. Aplikasi bukan layanan produksi dan tidak memverifikasi pembayaran eksternal.</p>
+        </article>`;
+    }
+
+    function showModal(title, subtitle, content) {
+      const host = document.getElementById('modal-root');
+      host.innerHTML = `<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><h3 id="modal-title">${escapeHtml(title)}</h3><p>${escapeHtml(subtitle)}</p></div><button class="modal-close" onclick="closeModal()" aria-label="Tutup">×</button></div>${content}</section></div>`;
+      host.querySelector('.modal').focus();
+    }
+
+    function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+
+    function confirmReset() {
+      if (!confirm('Reset data STOCKLOGIC ke data contoh? Semua transaksi, menu, dan stok pada browser ini akan dihapus.')) return;
+      const previous = db;
+      db = createDemoData();
+      cart = { daily: [], retail: [] };
+      posSettings = { daily: { discount: 0, payment: 'Tunai', cashReceived: 0 }, retail: { discount: 0, payment: 'Tunai', cashReceived: 0 } };
+      if (!saveDB()) {
+        db = previous;
+        return;
+      }
+      toast('Data contoh berhasil dipulihkan.', 'success');
+      switchTab('dashboard');
+    }
+
+    document.querySelectorAll('.nav button').forEach(button => button.addEventListener('click', () => switchTab(button.dataset.tab)));
+    window.addEventListener('keydown', event => { if (event.key === 'Escape') closeModal(); });
+    db = loadDB();
+    const dataBeforeDemoHistory = clone(db);
+    const demoTransactionsAdded = appendDemoHistory(db);
+    if (!saveDB() && demoTransactionsAdded) db = dataBeforeDemoHistory;
+    if (demoTransactionsAdded) toast(`${demoTransactionsAdded} transaksi contoh dari 90 hari ditambahkan. Data simulasi ditandai dan tidak mengubah stok.`, 'info');
+    render();
+  </script>
+</body>
+</html>
